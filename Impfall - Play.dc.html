@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<script src="./impfall-locations-data.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&amp;family=Cinzel+Decorative:wght@700;900&amp;family=EB+Garamond:ital,wght@0,400;0,500;1,400&amp;family=Archivo:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  a { color: #e6cb7e; }
+  a:hover { color: #f4d78c; }
+  @keyframes imp-spot { 0%,100% { transform: translateX(-14px) rotate(-3deg); opacity:.85 } 50% { transform: translateX(14px) rotate(3deg); opacity:1 } }
+  @keyframes imp-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }
+  @keyframes imp-tilt { 0%,100% { transform: rotate(-4deg) } 50% { transform: rotate(4deg) } }
+  @keyframes imp-shimmer { 0% { background-position: -180% 0 } 100% { background-position: 280% 0 } }
+  @keyframes imp-rise { from { opacity:0; transform: translateY(14px) } to { opacity:1; transform: translateY(0) } }
+  @keyframes imp-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(200,162,76,.45) } 50% { box-shadow: 0 0 0 8px rgba(200,162,76,0) } }
+  @keyframes imp-slide-up { from { opacity:0; transform: translateY(60px) } to { opacity:1; transform: translateY(0) } }
+  @keyframes imp-slide-in { from { opacity:0 } to { opacity:1 } }
+  @keyframes imp-fade-in { from { opacity:0 } to { opacity:1 } }
+  @keyframes imp-scale-in { from { opacity:0; transform: scale(.94) } to { opacity:1; transform: scale(1) } }
+  @keyframes imp-backdrop { from { opacity:0 } to { opacity:1 } }
+  .imp-btn { transition: transform .12s ease, opacity .12s ease; }
+  .imp-btn:active { transform: scale(.95); opacity:.82; }
+</style>
+</helmet>
+
+<div style="width:100%; height:100dvh; background:radial-gradient(120% 70% at 50% -10%, rgba(46,91,176,.12), transparent 60%), #05020a; display:flex; align-items:center; justify-content:center;">
+  <div style="width:100%; max-width:480px; height:100%; max-height:900px; position:relative; overflow:hidden; background:#1a070b; box-shadow:0 30px 90px rgba(0,0,0,.6);">
+
+      <!-- ====== LOBBY / SETUP ====== -->
+      <sc-if value="{{ isLobby }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-fade-in .25s ease both;">
+          <!-- top bar -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:28px 20px 14px;">
+            <div onClick="{{ openHelp }}" style="width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:'Cinzel',serif; font-weight:700; font-size:17px; color:#caa64f;" class="imp-btn">?</div>
+            <div style="font-family:'Cinzel Decorative',serif; font-weight:700; font-size:22px; color:#ecdfc0; letter-spacing:.04em;">IMPFALL</div>
+            <div onClick="{{ openSettings }}" style="width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:#caa64f;" class="imp-btn">⚙</div>
+          </div>
+
+          <div style="flex:1; overflow-y:auto; padding:0 18px 14px;">
+
+            <!-- game mode -->
+            <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:#9b8a63; margin-bottom:10px;">Game Mode</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:22px;">
+              <!-- Role Mode -->
+              <div onClick="{{ setRoleMode }}" style="padding:13px 14px; border-radius:12px; background:{{ roleTileBg }}; border:{{ roleTileBorder }}; cursor:pointer;" class="imp-btn">
+                <div style="margin-bottom:6px;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><ellipse cx="9" cy="13" rx="6" ry="7" stroke="#e6cb7e" stroke-width="1.7"></ellipse><path d="M7 11 Q9 9 11 11" stroke="#e6cb7e" stroke-width="1.4" stroke-linecap="round"></path><path d="M7 15.5 Q9 18 11 15.5" stroke="#e6cb7e" stroke-width="1.4" stroke-linecap="round"></path><ellipse cx="17" cy="11" rx="5" ry="6" stroke="#caa64f" stroke-width="1.4" opacity=".6"></ellipse><path d="M15 9 Q17 7.5 19 9" stroke="#caa64f" stroke-width="1.2" stroke-linecap="round" opacity=".6"></path></svg>
+                </div>
+                <div style="font-family:'Cinzel',serif; font-weight:700; font-size:13px; color:{{ roleTileColor }};">Role Mode</div>
+                <div style="font-family:'Archivo',sans-serif; font-size:10px; color:{{ roleTileSubColor }}; margin-top:2px; line-height:1.35;">Roles and words assigned, Jester flies blind</div>
+              </div>
+              <!-- The Script (word-only) -->
+              <div onClick="{{ setWordMode }}" style="padding:13px 14px; border-radius:12px; background:{{ wordTileBg }}; border:{{ wordTileBorder }}; cursor:pointer;" class="imp-btn">
+                <div style="margin-bottom:6px;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="4" y="3" width="16" height="18" rx="3" stroke="#e6cb7e" stroke-width="1.7"></rect><path d="M8 8 L16 8 M8 12 L16 12 M8 16 L12 16" stroke="#e6cb7e" stroke-width="1.4" stroke-linecap="round"></path><path d="M14 15 L18 19 M16 15 L18 17" stroke="#caa64f" stroke-width="1.3" stroke-linecap="round" opacity=".7"></path></svg>
+                </div>
+                <div style="font-family:'Cinzel',serif; font-weight:700; font-size:13px; color:{{ wordTileColor }};">Word Mode</div>
+                <div style="font-family:'Archivo',sans-serif; font-size:10px; color:{{ wordTileSubColor }}; margin-top:2px; line-height:1.35;">Everyone gets the word but the Jester</div>
+              </div>
+            </div>
+
+            <!-- settings rows -->
+            <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:#9b8a63; margin-bottom:10px;">Game Settings</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+
+              <!-- Players -->
+              <div onClick="{{ openPlayers }}" style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.12); cursor:pointer;" class="imp-btn">
+                <div style="width:34px; height:34px; border-radius:9px; background:rgba(200,162,76,.15); display:flex; align-items:center; justify-content:center; flex:none;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="8" cy="8" r="4" stroke="#caa64f" stroke-width="1.8"></circle><circle cx="16" cy="8" r="4" stroke="#caa64f" stroke-width="1.8"></circle><path d="M2 20 C2 16 5 14 8 14 C10 14 12 14.8 13 16" stroke="#caa64f" stroke-width="1.8" stroke-linecap="round"></path><path d="M22 20 C22 16 19 14 16 14 C14 14 12 14.8 11 16" stroke="#caa64f" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#9b8a63;">Players</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#ddd0b0; margin-top:1px;">{{ playerCount }} Players</div>
+                </div>
+                <div style="color:#5a6a84; font-size:18px;">›</div>
+              </div>
+
+              <!-- Categories -->
+              <div onClick="{{ openCategories }}" style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.12); cursor:pointer;" class="imp-btn">
+                <div style="width:34px; height:34px; border-radius:9px; background:rgba(200,162,76,.15); display:flex; align-items:center; justify-content:center; flex:none;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M4 5 L4 19 Q4 20 5 20 L19 20 Q20 20 20 19 L20 5 Q20 4 19 4 L5 4 Q4 4 4 5 Z" stroke="#caa64f" stroke-width="1.8"></path><path d="M8 8 L16 8 M8 12 L16 12 M8 16 L13 16" stroke="#caa64f" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#9b8a63;">Categories</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#ddd0b0; margin-top:1px;">{{ catSummary }}</div>
+                </div>
+                <div style="color:#5a6a84; font-size:18px;">›</div>
+              </div>
+
+              <!-- Jesters -->
+              <div onClick="{{ openJesters }}" style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.12); cursor:pointer;" class="imp-btn">
+                <div style="width:34px; height:34px; border-radius:9px; background:rgba(178,32,47,.2); display:flex; align-items:center; justify-content:center; flex:none;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><ellipse cx="12" cy="13" rx="8" ry="9" stroke="#e6a0a8" stroke-width="1.8"></ellipse><path d="M9 10 Q10.5 8.5 12 10" stroke="#e6a0a8" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 10 Q13.5 8.5 15 10" stroke="#e6a0a8" stroke-width="1.5" stroke-linecap="round"></path><path d="M9 16 Q12 20 15 16" stroke="#e6a0a8" stroke-width="1.5" stroke-linecap="round"></path><path d="M13 4 L11.5 9 L13.5 12 L11 16" stroke="#e6a0a8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"></path></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#9b8a63;">Jesters</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#ddd0b0; margin-top:1px;">{{ spyLabel }}</div>
+                </div>
+                <div style="color:#5a6a84; font-size:18px;">›</div>
+              </div>
+
+              <!-- Time Limit -->
+              <div onClick="{{ openTime }}" style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.12); cursor:pointer;" class="imp-btn">
+                <div style="width:34px; height:34px; border-radius:9px; background:rgba(46,91,176,.2); display:flex; align-items:center; justify-content:center; flex:none;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M7 4 L17 4 L17 8 Q17 11 12 12 Q7 13 7 16 L7 20 L17 20 L17 16 Q17 13 12 12 Q7 11 7 8 Z" stroke="#9fb0cf" stroke-width="1.8" stroke-linejoin="round"></path><path d="M9 18 Q12 16 15 18" stroke="#9fb0cf" stroke-width="1.5" stroke-linecap="round"></path><path d="M9 6 Q12 7.5 15 6" stroke="#9fb0cf" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#9b8a63;">Time Limit</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#ddd0b0; margin-top:1px;">{{ timeLimitRow }}</div>
+                </div>
+                <div style="color:#5a6a84; font-size:18px;">›</div>
+              </div>
+
+              <!-- Settings row -->
+              <div onClick="{{ openGameSettings }}" style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.12); cursor:pointer;" class="imp-btn">
+                <div style="width:34px; height:34px; border-radius:9px; background:rgba(200,162,76,.15); display:flex; align-items:center; justify-content:center; flex:none;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="3" stroke="#caa64f" stroke-width="1.8"></circle><path d="M12 2 L12 5 M12 19 L12 22 M2 12 L5 12 M19 12 L22 12 M4.93 4.93 L7.05 7.05 M16.95 16.95 L19.07 19.07 M19.07 4.93 L16.95 7.05 M7.05 16.95 L4.93 19.07" stroke="#caa64f" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#9b8a63;">Options</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#ddd0b0; margin-top:1px;">{{ gameSettingsSummary }}</div>
+                </div>
+                <div style="color:#5a6a84; font-size:18px;">›</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- start button -->
+          <div style="padding:10px 18px 28px; background:linear-gradient(0deg,#0e0810 70%,transparent);">
+            <div onClick="{{ goReveal }}" style="padding:17px; text-align:center; background:linear-gradient(180deg,#b3202f,#7a1620); color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:.08em; border-radius:12px; box-shadow:0 8px 28px rgba(178,32,47,.4); cursor:pointer;" class="imp-btn">RAISE THE CURTAIN</div>
+          </div>
+
+          <!-- ====== MODAL OVERLAY ====== -->
+          <sc-if value="{{ hasModal }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; inset:0; background:rgba(8,4,12,.7); display:flex; flex-direction:column; justify-content:flex-end; animation:imp-backdrop .2s ease both;">
+              <div onClick="{{ closeModal }}" style="flex:1;"></div>
+
+              <!-- CATEGORIES modal -->
+              <sc-if value="{{ isModalCategories }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+                    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;">Categories</div>
+                    <div onClick="{{ closeModal }}" style="font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;">×</div>
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <sc-for list="{{ categoryItems }}" as="c" hint-placeholder-count="2">
+                      <div onClick="{{ c.onToggle }}" style="padding:14px 12px; border-radius:12px; cursor:pointer; text-align:center; background:{{ c.tileBg }}; border:{{ c.tileBorder }};">
+                        <div style="font-family:'Cinzel',serif; font-weight:600; font-size:14px; color:{{ c.color }};">{{ c.cat }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- SPIES modal -->
+              <sc-if value="{{ isModalJesters }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;">Number of Jesters</div>
+                    <div onClick="{{ closeModal }}" style="font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;">×</div>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:center; gap:32px;">
+                    <div onClick="{{ decSpy }}" style="width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.08); border:1px solid rgba(200,162,76,.3); display:flex; align-items:center; justify-content:center; font-size:26px; color:#caa64f; cursor:pointer; line-height:1;">−</div>
+                    <div style="text-align:center;">
+                      <div style="font-family:'Cinzel Decorative',serif; font-weight:700; font-size:52px; color:#f0e6c9; line-height:1;">{{ spyCount }}</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:15px; color:#9b8a63; margin-top:4px;">{{ spyLabel }}</div>
+                    </div>
+                    <div onClick="{{ incSpy }}" style="width:52px; height:52px; border-radius:50%; background:rgba(178,32,47,.25); border:1px solid rgba(178,32,47,.5); display:flex; align-items:center; justify-content:center; font-size:26px; color:#f4a0a8; cursor:pointer; line-height:1;">+</div>
+                  </div>
+                  <!-- randomize toggle row -->
+                  <div style="display:flex; align-items:center; gap:12px; margin:20px 0 14px;">
+                    <div style="flex:1; height:1px; background:rgba(200,162,76,.15);"></div>
+                    <div style="font-family:'EB Garamond',serif; font-size:13px; font-style:italic; color:#7a6a4a;">or randomize</div>
+                    <div style="flex:1; height:1px; background:rgba(200,162,76,.15);"></div>
+                  </div>
+                  <div onClick="{{ toggleRandJesters }}" style="display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,.04); border:1px solid rgba(200,162,76,.12); cursor:pointer; margin-bottom:14px;" class="imp-btn">
+                    <div style="flex:1;">
+                      <div style="font-family:'Cinzel',serif; font-weight:600; font-size:15px; color:#f0e6c9;">Random Count</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:13px; color:#8a9ab8; margin-top:2px;">Pick a random number of jesters each round</div>
+                    </div>
+                    <div style="position:relative; width:44px; height:24px; border-radius:12px; background:{{ randJestersBg }}; transition:background .25s; flex:none;">
+                      <div style="position:absolute; top:2px; left:0; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.4); transform:{{ randJestersThumb }}; transition:transform .25s;"></div>
+                    </div>
+                  </div>
+                  <!-- min/max steppers — shown only when toggle is on -->
+                  <sc-if value="{{ randJesters }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:18px; animation:imp-rise .2s ease both;">
+                      <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                        <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#9b8a63;">Min</div>
+                        <div style="display:flex; align-items:center; gap:9px;">
+                          <div onClick="{{ decRandMin }}" style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center; font-size:17px; color:#caa64f; cursor:pointer; line-height:1;" class="imp-btn">−</div>
+                          <div style="font-family:'Cinzel',serif; font-weight:700; font-size:26px; color:#f0e6c9; min-width:28px; text-align:center; line-height:1;">{{ spyRandMin }}</div>
+                          <div onClick="{{ incRandMin }}" style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center; font-size:17px; color:#caa64f; cursor:pointer; line-height:1;" class="imp-btn">+</div>
+                        </div>
+                      </div>
+                      <div style="font-family:'Cinzel',serif; font-size:16px; color:#5a4a2a; padding-top:20px;">→</div>
+                      <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                        <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#9b8a63;">Max</div>
+                        <div style="display:flex; align-items:center; gap:9px;">
+                          <div onClick="{{ decRandMax }}" style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center; font-size:17px; color:#caa64f; cursor:pointer; line-height:1;" class="imp-btn">−</div>
+                          <div style="font-family:'Cinzel',serif; font-weight:700; font-size:26px; color:#f0e6c9; min-width:28px; text-align:center; line-height:1;">{{ spyRandMax }}</div>
+                          <div onClick="{{ incRandMax }}" style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center; font-size:17px; color:#caa64f; cursor:pointer; line-height:1;" class="imp-btn">+</div>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <!-- TIME modal -->
+              <sc-if value="{{ isModalTime }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+                    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;">Time Limit</div>
+                    <div onClick="{{ closeModal }}" style="font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;">×</div>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:center; gap:32px; padding:10px 0 6px;">
+                    <div onClick="{{ decTime }}" style="width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.08); border:1px solid rgba(200,162,76,.3); display:flex; align-items:center; justify-content:center; font-size:26px; color:#caa64f; cursor:pointer; line-height:1;" class="imp-btn">−</div>
+                    <div style="text-align:center; min-width:100px;">
+                      <div style="font-family:'Cinzel Decorative',serif; font-weight:700; font-size:52px; color:#f0e6c9; line-height:1;">{{ timeLimitDisplay }}</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:15px; color:#9b8a63; margin-top:4px;">{{ timeLimitUnit }}</div>
+                    </div>
+                    <div onClick="{{ incTime }}" style="width:52px; height:52px; border-radius:50%; background:rgba(178,32,47,.25); border:1px solid rgba(178,32,47,.5); display:flex; align-items:center; justify-content:center; font-size:26px; color:#f4a0a8; cursor:pointer; line-height:1;" class="imp-btn">+</div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- HELP modal -->
+              <sc-if value="{{ isModalHelp }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); max-height:80vh; overflow-y:auto; animation:imp-slide-up .3s ease both;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+                    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;">How to Play</div>
+                    <div onClick="{{ closeModal }}" style="font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;">×</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:14px;">
+                    <div style="padding:14px; background:rgba(255,255,255,.04); border-radius:12px; border-left:3px solid #caa64f;">
+                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e; margin-bottom:4px;">The Setup</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:14px; color:#b9c6df; line-height:1.5;">Add your players, then choose Locations or Biomes. Each round picks one category and gives the Jester a different role.</div>
+                    </div>
+                    <div style="padding:14px; background:rgba(255,255,255,.04); border-radius:12px; border-left:3px solid #7a1620;">
+                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e; margin-bottom:4px;">The Modes</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:14px; color:#b9c6df; line-height:1.5;">Role Mode shows each player a role for the chosen word. Word Mode hides the role label and shows only the shared word for everyone except the Jester.</div>
+                    </div>
+                    <div style="padding:14px; background:rgba(255,255,255,.04); border-radius:12px; border-left:3px solid #14254a;">
+                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e; margin-bottom:4px;">The Clues</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:14px; color:#b9c6df; line-height:1.5;">Take turns saying one clue related to the secret word, location, or biome. Be clear enough to seem informed, but not so clear that you give it away.</div>
+                    </div>
+                    <div style="padding:14px; background:rgba(255,255,255,.04); border-radius:12px; border-left:3px solid #2e5bb0;">
+                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e; margin-bottom:4px;">The Trial</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:14px; color:#b9c6df; line-height:1.5;">Discuss and vote. If the group picks the Jester correctly, the Cast wins. If not, the Jester escapes and wins. If the Jester is caught, they may still guess the word to steal the round.</div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- GAME SETTINGS modal -->
+              <sc-if value="{{ isModalGameSettings }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;">Game Options</div>
+                    <div onClick="{{ closeModal }}" style="font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;" class="imp-btn">×</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:0; border-radius:14px; overflow:hidden; border:1px solid rgba(200,162,76,.12);">
+
+                    <div onClick="{{ toggleShowCat }}" style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(255,255,255,.04); border-bottom:1px solid rgba(200,162,76,.08); cursor:pointer;">
+                      <div style="flex:none; width:38px; height:38px; border-radius:10px; background:rgba(200,162,76,.15); display:flex; align-items:center; justify-content:center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 5 L4 19 Q4 20 5 20 L19 20 Q20 20 20 19 L20 5 Q20 4 19 4 L5 4 Q4 4 4 5 Z" stroke="#caa64f" stroke-width="1.8"></path><path d="M8 8 L16 8 M8 12 L16 12 M8 16 L13 16" stroke="#caa64f" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                      </div>
+                      <div style="flex:1;">
+                        <div style="font-family:'Cinzel',serif; font-weight:600; font-size:15px; color:#f0e6c9;">Show Category</div>
+                        <div style="font-family:'EB Garamond',serif; font-size:13px; color:#8a9ab8; margin-top:2px;">Players can see the category of the secret word</div>
+                      </div>
+                      <div style="position:relative; width:44px; height:24px; border-radius:12px; background:{{ showCatBg }}; transition:background .25s; flex:none;">
+                        <div style="position:absolute; top:2px; left:0; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.4); transform:{{ showCatThumb }}; transition:transform .25s;"></div>
+                      </div>
+                    </div>
+
+                    <div onClick="{{ toggleJestersKnow }}" style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(255,255,255,.04); border-bottom:1px solid rgba(200,162,76,.08); cursor:pointer;">
+                      <div style="flex:none; width:38px; height:38px; border-radius:10px; background:rgba(178,32,47,.2); display:flex; align-items:center; justify-content:center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><ellipse cx="12" cy="13" rx="8" ry="9" stroke="#e6a0a8" stroke-width="1.8"></ellipse><path d="M9 10 Q10.5 8.5 12 10" stroke="#e6a0a8" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 10 Q13.5 8.5 15 10" stroke="#e6a0a8" stroke-width="1.5" stroke-linecap="round"></path><path d="M9 16 Q12 20 15 16" stroke="#e6a0a8" stroke-width="1.5" stroke-linecap="round"></path><path d="M13 4 L11.5 9 L13.5 12 L11 16" stroke="#e6a0a8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"></path></svg>
+                      </div>
+                      <div style="flex:1;">
+                        <div style="font-family:'Cinzel',serif; font-weight:600; font-size:15px; color:#f0e6c9;">Jesters Know Each Other</div>
+                        <div style="font-family:'EB Garamond',serif; font-size:13px; color:#8a9ab8; margin-top:2px;">Multiple jesters are revealed to each other at the start</div>
+                      </div>
+                      <div style="position:relative; width:44px; height:24px; border-radius:12px; background:{{ jestersKnowBg }}; transition:background .25s; flex:none;">
+                        <div style="position:absolute; top:2px; left:0; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.4); transform:{{ jestersKnowThumb }}; transition:transform .25s;"></div>
+                      </div>
+                    </div>
+
+                    <div onClick="{{ toggleShowWord }}" style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(255,255,255,.04); border-bottom:1px solid rgba(200,162,76,.08); cursor:pointer; opacity:{{ showWordToggleOpacity }}; pointer-events:{{ showWordTogglePointerEvents }};">
+                      <div style="flex:none; width:38px; height:38px; border-radius:10px; background:rgba(46,91,176,.18); display:flex; align-items:center; justify-content:center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M3 12 C5.5 7.5 9 5 12 5 C15 5 18.5 7.5 21 12 C18.5 16.5 15 19 12 19 C9 19 5.5 16.5 3 12 Z" stroke="#9fb0cf" stroke-width="1.8"></path><circle cx="12" cy="12" r="2.5" stroke="#9fb0cf" stroke-width="1.4"></circle><path d="M5 19 L19 5" stroke="#9fb0cf" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                      </div>
+                      <div style="flex:1;">
+                        <div style="font-family:'Cinzel',serif; font-weight:600; font-size:15px; color:#f0e6c9;">Show Word</div>
+                        <div style="font-family:'EB Garamond',serif; font-size:13px; color:#8a9ab8; margin-top:2px;">Players can see the word during reveal</div>
+                      </div>
+                      <div style="position:relative; width:44px; height:24px; border-radius:12px; background:{{ showWordBg }}; transition:background .25s; flex:none;">
+                        <div style="position:absolute; top:2px; left:0; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.4); transform:{{ showWordThumb }}; transition:transform .25s;"></div>
+                      </div>
+                    </div>
+
+                    <div onClick="{{ toggleImposterGetsRole }}" style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(255,255,255,.04); cursor:pointer; opacity:{{ imposterGetsRoleToggleOpacity }}; pointer-events:{{ imposterGetsRoleTogglePointerEvents }};">
+                      <div style="flex:none; width:38px; height:38px; border-radius:10px; background:rgba(200,162,76,.15); display:flex; align-items:center; justify-content:center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><ellipse cx="9" cy="13" rx="6" ry="7" stroke="#e6cb7e" stroke-width="1.7"></ellipse><path d="M7 11 Q9 9 11 11" stroke="#e6cb7e" stroke-width="1.4" stroke-linecap="round"></path><path d="M7 15.5 Q9 18 11 15.5" stroke="#e6cb7e" stroke-width="1.4" stroke-linecap="round"></path><ellipse cx="17" cy="11" rx="5" ry="6" stroke="#caa64f" stroke-width="1.4" opacity=".6"></ellipse><path d="M15 9 Q17 7.5 19 9" stroke="#caa64f" stroke-width="1.2" stroke-linecap="round" opacity=".6"></path></svg>
+                      </div>
+                      <div style="flex:1;">
+                        <div style="font-family:'Cinzel',serif; font-weight:600; font-size:15px; color:#f0e6c9;">Imposter Gets Role</div>
+                        <div style="font-family:'EB Garamond',serif; font-size:13px; color:#8a9ab8; margin-top:2px;">{{ imposterGetsRoleDesc }}</div>
+                      </div>
+                      <div style="position:relative; width:44px; height:24px; border-radius:12px; background:{{ imposterGetsRoleBg }}; transition:background .25s; flex:none;">
+                        <div style="position:absolute; top:2px; left:0; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.4); transform:{{ imposterGetsRoleThumb }}; transition:transform .25s;"></div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </sc-if>
+
+              <!-- SETTINGS modal -->
+              <sc-if value="{{ isModalSettings }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                    <div style="font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;">Settings</div>
+                    <div onClick="{{ closeModal }}" style="font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;">×</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:rgba(255,255,255,.05); border-radius:12px;">
+                      <div style="font-family:'EB Garamond',serif; font-size:16px; color:#ddd0b0;">Sound Effects</div>
+                      <div style="font-family:'Archivo',sans-serif; font-size:13px; color:#5a6a84;">Coming soon</div>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:rgba(255,255,255,.05); border-radius:12px;">
+                      <div style="font-family:'EB Garamond',serif; font-size:16px; color:#ddd0b0;">Dark Theme</div>
+                      <div style="font-family:'Archivo',sans-serif; font-size:13px; color:#caa64f;">Always on</div>
+                    </div>
+                    <div style="padding:14px 16px; background:rgba(255,255,255,.05); border-radius:12px; text-align:center;">
+                      <div style="font-family:'Cinzel Decorative',serif; font-weight:700; font-size:16px; color:#e6cb7e;">IMPFALL</div>
+                      <div style="font-family:'Archivo',sans-serif; font-size:11px; color:#5f6c86; margin-top:4px; letter-spacing:.06em;">VERSION 1.0 · THE THEATRON COMPANY</div>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+
+            </div>
+          </sc-if>
+
+        </div>
+      </sc-if>
+
+      <!-- ====== PLAYERS SCREEN ====== -->
+      <sc-if value="{{ isPlayers }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-slide-in .3s ease both;">
+          <div style="height:24px;"></div>
+          <div style="display:flex; align-items:center; gap:12px; padding:0 20px 18px;">
+            <div onClick="{{ backToLobbyFromPlayers }}" style="font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; flex:none;" class="imp-btn">‹</div>
+            <div style="font-family:'Cinzel',serif; font-weight:700; font-size:22px; color:#f0e6c9;">The Cast</div>
+          </div>
+          <div style="flex:1; overflow-y:auto; padding:0 20px;">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ playerItems }}" as="p" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:14px; border:1px solid rgba(200,162,76,.15); animation:imp-rise .25s ease both;">
+                  <div style="flex:none; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.3); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center;">
+                    <dc-import name="Mask" comedy="{{ p.comedy }}" tragedy="{{ p.tragedy }}" cracked="{{ false }}" face-color="{{ p.face }}" line-color="{{ p.line }}" size="{{ 26 }}" hint-size="26px,28px"></dc-import>
+                  </div>
+                  <sc-if value="{{ p.editing }}" hint-placeholder-val="{{ false }}">
+                    <input onChange="{{ p.onEditChange }}" onKeyDown="{{ p.onEditKeyDown }}" onBlur="{{ p.onEditBlur }}" value="{{ p.editVal }}" style="flex:1; padding:6px 10px; background:rgba(255,255,255,.1); border:1px solid #caa64f; border-radius:8px; color:#f0e6c9; font-family:'EB Garamond',serif; font-size:17px; outline:none;">
+                  </sc-if>
+                  <sc-if value="{{ p.notEditing }}" hint-placeholder-val="{{ true }}">
+                    <div onClick="{{ p.onEditTap }}" style="flex:1; font-family:'EB Garamond',serif; font-size:17px; color:#f0e6c9; cursor:text; padding:6px 2px;">{{ p.name }}</div>
+                  </sc-if>
+                  <div onClick="{{ p.onRemove }}" style="width:30px; height:30px; border-radius:50%; background:rgba(178,32,47,.2); border:1px solid rgba(178,32,47,.35); display:flex; align-items:center; justify-content:center; font-size:16px; color:#e6a0a8; cursor:pointer; line-height:1; flex:none;" class="imp-btn">×</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height:16px;"></div>
+          </div>
+          <div style="padding:12px 20px 28px; background:linear-gradient(0deg,#0e0810 70%,transparent);">
+            <sc-if value="{{ addingPlayer }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:8px; align-items:center; animation:imp-rise .2s ease both;">
+                <input onKeyDown="{{ onNameKeyDown }}" onChange="{{ onNameChange }}" value="{{ newName }}" placeholder="Enter player name…" style="flex:1; padding:14px 16px; background:rgba(255,255,255,.08); border:1px solid #caa64f; border-radius:12px; color:#f0e6c9; font-family:'EB Garamond',serif; font-size:16px; outline:none;">
+                <div onClick="{{ confirmAdd }}" style="padding:14px 16px; background:linear-gradient(180deg,#b3202f,#7a1620); border-radius:12px; color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:14px; cursor:pointer;" class="imp-btn">Add</div>
+                <div onClick="{{ cancelAdd }}" style="padding:14px 12px; color:#7c6a46; font-size:20px; cursor:pointer;" class="imp-btn">×</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ notAddingPlayer }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ onAddTap }}" style="padding:16px; text-align:center; border:1.5px dashed rgba(200,162,76,.4); border-radius:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;" class="imp-btn">
+                <div style="font-size:22px; color:#caa64f; line-height:1; font-family:'EB Garamond',serif;">+</div>
+                <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:16px; color:#c6b489;">Add a player…</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ====== ACT ONE: ALL PLAYERS ====== -->
+      <sc-if value="{{ isReveal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-slide-in .3s ease both;">
+
+          <!-- header -->
+          <div style="height:24px;"></div>
+          <div style="position:relative; text-align:center; padding:0 26px 18px;">
+            <div onClick="{{ backToLobby }}" style="position:absolute; left:0; top:0; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; opacity:.8;" class="imp-btn">‹</div>
+            <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.35em; text-transform:uppercase; color:#caa64f;">Act One</div>
+            <div style="font-family:'Cinzel',serif; font-weight:700; font-size:22px; color:#f0e6c9; margin-top:4px;">Tap your name in secret</div>
+            <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:14px; color:#8a9ab8; margin-top:4px;">Each player privately sees their role, then passes the phone.</div>
+            <sc-if value="{{ showCategory }}" hint-placeholder-val="{{ true }}">
+              <div style="display:inline-flex; align-items:center; gap:8px; margin-top:12px; padding:7px 16px; border-radius:20px; background:rgba(200,162,76,.12); border:1px solid rgba(200,162,76,.3);">
+                <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#9b8a63;">Category</div>
+                <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e;">{{ gameCategory }}</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- player list -->
+          <div style="flex:1; overflow-y:auto; padding:0 20px;">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ actOnePlayers }}" as="p" hint-placeholder-count="6">
+                <div onClick="{{ p.onTap }}" style="display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px; cursor:pointer; background:{{ p.rowBg }}; border:{{ p.rowBorder }};" class="imp-btn">
+                  <div style="flex:none; width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; border:1px solid rgba(200,162,76,.25);">
+                    <dc-import name="Mask" comedy="{{ p.comedy }}" tragedy="{{ p.tragedy }}" cracked="{{ false }}" face-color="{{ p.face }}" line-color="{{ p.line }}" size="{{ 30 }}" hint-size="30px,38px"></dc-import>
+                  </div>
+                  <div style="flex:1; font-family:'Cinzel',serif; font-weight:600; font-size:17px; color:#f0e6c9;">{{ p.shortName }}</div>
+                  <div style="font-family:'Archivo',sans-serif; font-size:12px; color:{{ p.labelColor }};">{{ p.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height:16px;"></div>
+          </div>
+
+          <!-- begin trial button -->
+          <div style="padding:12px 20px 28px;">
+            <sc-if value="{{ allSeen }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ goVoting }}" style="padding:17px; text-align:center; background:linear-gradient(180deg,#b3202f,#7a1620); color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:.08em; border-radius:12px; box-shadow:0 8px 28px rgba(178,32,47,.4); cursor:pointer; animation:imp-rise .4s ease both;" class="imp-btn">BEGIN THE TRIAL →</div>
+            </sc-if>
+            <sc-if value="{{ notAllSeen }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:17px; text-align:center; border:1px dashed rgba(200,162,76,.3); color:#7a6a4a; font-family:'Cinzel',serif; font-weight:700; font-size:15px; border-radius:12px;">ALL PLAYERS MUST TAP FIRST</div>
+            </sc-if>
+          </div>
+
+          <!-- OVERLAY: card reveal -->
+          <sc-if value="{{ showOverlay }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; inset:0; background:rgba(8,4,10,.88); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px; animation:imp-fade-in .2s ease both;">
+              <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.35em; text-transform:uppercase; color:#caa64f; margin-bottom:6px;">Your Role</div>
+              <div style="font-family:'Cinzel Decorative',serif; font-weight:700; font-size:28px; color:#f3ead0; margin-bottom:22px;">{{ apName }}</div>
+
+              <!-- card with curtains -->
+              <div onClick="{{ openCurtain }}" style="position:relative; width:240px; height:340px; border-radius:16px; cursor:pointer; overflow:hidden; box-shadow:0 20px 56px rgba(0,0,0,.7); border:1px solid rgba(230,203,126,.4);">
+                <div style="position:absolute; inset:0; background:radial-gradient(120% 80% at 50% 0%, #f6ecd2, #e6d6b0); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
+                  <div style="display:flex; justify-content:center; margin-bottom:14px;">
+                    <dc-import name="Mask" comedy="{{ apComedy }}" tragedy="{{ apTragedy }}" cracked="{{ apIsUndisguisedJester }}" face-color="{{ apFace }}" line-color="{{ apLine }}" size="{{ 60 }}" hint-size="60px,76px"></dc-import>
+                  </div>
+                  <sc-if value="{{ showRoleHeading }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:#9a7d3a;">You are the</div>
+                    <div style="font-family:'Cinzel',serif; font-weight:800; font-size:{{ apRoleSize }}; color:{{ apRoleColor }}; margin:5px 0 16px; letter-spacing:.04em; text-wrap:balance;">{{ apRole }}</div>
+                    <div style="width:50px; height:1px; background:rgba(110,20,28,.35); margin-bottom:16px;"></div>
+                  </sc-if>
+                  <!-- Performer: word only -->
+                  <sc-if value="{{ apIsPerformer }}" hint-placeholder-val="{{ true }}">
+                    <div style="{{ apWordBlockStyle }}">
+                      <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:#9a7d3a;">{{ apWordLabel }}</div>
+                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:{{ apWordSize }}; color:#14254a; margin-top:5px; text-wrap:balance;">{{ apWord }}</div>
+                    </div>
+                  </sc-if>
+                  <!-- Jester: no word -->
+                  <sc-if value="{{ apIsUndisguisedJester }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:#b3202f;">No Word Assigned</div>
+                    <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:14px; color:#7a3030; margin-top:5px; line-height:1.3;">You are flying blind.</div>
+                    <sc-if value="{{ apShowAllies }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:12px; padding:8px 12px; background:rgba(178,32,47,.15); border:1px solid rgba(178,32,47,.4); border-radius:8px; text-align:center;">
+                        <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#b3202f; margin-bottom:3px;">Your Fellow Jesters</div>
+                        <div style="font-family:'Cinzel',serif; font-weight:700; font-size:13px; color:#7a1620;">{{ apJesterAllies }}</div>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                  <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:12px; color:#8a6d3e; margin-top:14px; line-height:1.4;">{{ apHint }}</div>
+                </div>
+                <div style="{{ leftCurtain }}">
+                  <div style="width:3px; height:84%; background:linear-gradient(180deg,transparent,#e6cb7e,transparent); opacity:.55;"></div>
+                </div>
+                <div style="{{ rightCurtain }}">
+                  <div style="width:3px; height:84%; background:linear-gradient(180deg,transparent,#e6cb7e,transparent); opacity:.55;"></div>
+                </div>
+                <div style="position:absolute; top:12px; left:0; right:0; text-align:center; font-family:'Cinzel',serif; font-size:12px; letter-spacing:.2em; color:#e6cb7e; pointer-events:none;">{{ curtainHint }}</div>
+              </div>
+
+              <sc-if value="{{ cardOpen }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ closeOverlay }}" style="margin-top:22px; padding:14px 32px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.4); color:#ecdfc0; font-family:'Cinzel',serif; font-weight:700; font-size:14px; letter-spacing:.06em; border-radius:10px; cursor:pointer; animation:imp-rise .35s ease both;">GOT IT</div>
+              </sc-if>
+              <sc-if value="{{ cardNotOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:18px; font-family:'EB Garamond',serif; font-style:italic; font-size:14px; color:#caa64f;">Tap the curtain to reveal</div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+        </div>
+      </sc-if>
+
+      <!-- ====== VOTING ====== -->
+      <sc-if value="{{ isVoting }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; background:#0b0d18; animation:imp-slide-in .3s ease both;">
+          <div style="height:24px;"></div>
+
+          <!-- back + title -->
+          <div style="padding:0 22px 6px; display:flex; align-items:flex-start; gap:12px;">
+            <div onClick="{{ backToReveal }}" style="padding-top:4px; font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; flex:none;" class="imp-btn">‹</div>
+            <div>
+              <div style="font-family:'Cinzel',serif; font-weight:800; font-size:28px; color:#f0e6c9; line-height:1.1;">The Trial</div>
+              <div style="font-family:'EB Garamond',serif; font-size:15px; color:#8a9ab8; margin-top:4px;">Debate, accuse, unmask the jester.</div>
+            </div>
+          </div>
+
+          <div style="flex:1; overflow-y:auto; padding:16px 20px 0;">
+
+            <!-- how it works header -->
+            <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#ecdfc0; margin-bottom:14px;">How It Works</div>
+
+            <!-- step cards -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:22px;">
+
+              <!-- Step 1 -->
+              <div style="display:flex; align-items:center; gap:14px; padding:16px; border-radius:14px; background:rgba(255,255,255,.05); border:1px solid rgba(46,91,176,.35);">
+                <div style="position:relative; flex:none; width:52px; height:52px; border-radius:12px; background:linear-gradient(135deg,#14254a,#0d1a38); display:flex; align-items:center; justify-content:center;">
+                  <svg viewBox="0 0 32 32" width="28" height="28"><circle cx="16" cy="10" r="5" fill="none" stroke="#9fb0cf" stroke-width="2"></circle><path d="M11 14 L6 28 M21 14 L26 28 M8 28 L24 28" stroke="#9fb0cf" stroke-width="2" stroke-linecap="round"></path><path d="M13 18 L19 18" stroke="#e6cb7e" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 22 L20 22" stroke="#e6cb7e" stroke-width="1.5" stroke-linecap="round"></path><circle cx="16" cy="10" r="2.5" fill="#e6cb7e"></circle></svg>
+                  <div style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:#2e5bb0; font-family:'Cinzel',serif; font-weight:700; font-size:11px; color:#fff; display:flex; align-items:center; justify-content:center;">1</div>
+                </div>
+                <div>
+                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f0e6c9;">Opening Statements</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#8a9ab8; margin-top:2px;">The first player opens the round — go around the table.</div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div style="display:flex; align-items:center; gap:14px; padding:16px; border-radius:14px; background:rgba(255,255,255,.05); border:1px solid rgba(122,22,32,.5);">
+                <div style="position:relative; flex:none; width:52px; height:52px; border-radius:12px; background:linear-gradient(135deg,#4d0e14,#380a0f); display:flex; align-items:center; justify-content:center;">
+                  <svg viewBox="0 0 32 32" width="28" height="28"><ellipse cx="16" cy="15" rx="11" ry="12" fill="none" stroke="#e6a0a8" stroke-width="2"></ellipse><path d="M10 13 Q13 10 16 13" fill="none" stroke="#e6a0a8" stroke-width="1.8" stroke-linecap="round"></path><path d="M16 13 Q19 10 22 13" fill="none" stroke="#e6a0a8" stroke-width="1.8" stroke-linecap="round"></path><path d="M11 21 Q16 27 21 21" fill="none" stroke="#e6a0a8" stroke-width="2" stroke-linecap="round"></path></svg>
+                  <div style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:#7a1620; font-family:'Cinzel',serif; font-weight:700; font-size:11px; color:#ecdfc0; display:flex; align-items:center; justify-content:center;">2</div>
+                </div>
+                <div>
+                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f0e6c9;">Drop Clues</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#8a9ab8; margin-top:2px;">Each player says one clue word. Go around 2–3 times — watch for hesitation.</div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div style="display:flex; align-items:center; gap:14px; padding:16px; border-radius:14px; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.25);">
+                <div style="position:relative; flex:none; width:52px; height:52px; border-radius:12px; background:linear-gradient(135deg,#3a2a0a,#2a1e06); display:flex; align-items:center; justify-content:center;">
+                  <svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 6 L16 20" stroke="#e6cb7e" stroke-width="2.5" stroke-linecap="round"></path><path d="M10 14 L16 20 L22 14" fill="none" stroke="#e6cb7e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path><rect x="8" y="24" width="16" height="3" rx="1.5" fill="#e6cb7e" opacity="0.5"></rect></svg>
+                  <div style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:#caa64f; font-family:'Cinzel',serif; font-weight:700; font-size:11px; color:#1a0e02; display:flex; align-items:center; justify-content:center;">3</div>
+                </div>
+                <div>
+                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f0e6c9;">Cast Your Vote</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#8a9ab8; margin-top:2px;">Discuss, point fingers, and vote on who you think is the jester. Majority rules.</div>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div style="display:flex; align-items:center; gap:14px; padding:16px; border-radius:14px; background:rgba(178,32,47,.08); border:1px solid rgba(178,32,47,.4);">
+                <div style="position:relative; flex:none; width:52px; height:52px; border-radius:12px; background:linear-gradient(135deg,#5c1117,#3c0a10); display:flex; align-items:center; justify-content:center;">
+                  <svg viewBox="0 0 32 32" width="28" height="28"><ellipse cx="16" cy="15" rx="11" ry="12" fill="none" stroke="#f4a0a8" stroke-width="2"></ellipse><path d="M10 13 Q13 16 16 13" fill="none" stroke="#f4a0a8" stroke-width="1.8" stroke-linecap="round"></path><path d="M16 13 Q19 16 22 13" fill="none" stroke="#f4a0a8" stroke-width="1.8" stroke-linecap="round"></path><path d="M11 23 Q16 17 21 23" fill="none" stroke="#f4a0a8" stroke-width="2" stroke-linecap="round"></path><path d="M23 6 L26 3 M26 3 L29 6 M26 3 L26 8" stroke="#f4a0a8" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                  <div style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:#b3202f; font-family:'Cinzel',serif; font-weight:700; font-size:11px; color:#fff; display:flex; align-items:center; justify-content:center;">4</div>
+                </div>
+                <div>
+                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f0e6c9;">Unmask the Jester</div>
+                  <div style="font-family:'EB Garamond',serif; font-size:14px; color:#8a9ab8; margin-top:2px;">When ready, tap below to reveal who the jester really was.</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- reveal button -->
+          <div style="padding:12px 20px 28px;">
+            <div onClick="{{ goResults }}" style="padding:18px; text-align:center; background:linear-gradient(180deg,#b3202f,#7a1620); color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:.08em; border-radius:14px; box-shadow:0 8px 28px rgba(178,32,47,.4); cursor:pointer;" class="imp-btn">REVEAL THE JESTER</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ====== RESULTS ====== -->
+      <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; background:radial-gradient(80% 45% at 50% 26%, rgba(230,203,126,.28), transparent 60%), #14070c; animation:imp-scale-in .35s ease both;">
+          <div style="height:28px;"></div>
+          <div style="position:relative; width:100%; display:flex; justify-content:center; align-items:center; margin-bottom:2px;">
+            <div onClick="{{ backToLobby }}" style="position:absolute; left:20px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; opacity:.8;">‹</div>
+            <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.35em; text-transform:uppercase; color:#caa64f;">The Final Curtain</div>
+          </div>
+          <div style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:#f3ead0; margin-top:6px;">The Jester was…</div>
+          <div style="margin-top:18px; animation:imp-float 5s ease-in-out infinite;">
+            <dc-import name="Mask" comedy="{{ false }}" tragedy="{{ true }}" cracked="{{ true }}" face-color="{{ ivoryFace }}" line-color="{{ crimson }}" size="{{ 120 }}" hint-size="120px,150px"></dc-import>
+          </div>
+          <div style="font-family:'Cinzel Decorative',serif; font-weight:700; font-size:34px; color:#e6cb7e; margin-top:14px;">{{ revealedName }}</div>
+          <div style="display:flex; gap:14px; margin-top:24px; padding:0 26px; width:100%; justify-content:center;">
+            <div style="flex:1; max-width:140px; text-align:center; padding:14px 10px; border-radius:12px; background:rgba(46,91,176,.18); border:1px solid rgba(46,91,176,.4);">
+              <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; color:#9fb0cf;">ROUND CATEGORY</div>
+              <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#cfe0ff; margin-top:5px;">{{ roundCategory }}</div>
+            </div>
+              <div style="{{ roundWordBlockStyle }}">
+                <div style="flex:1; max-width:140px; text-align:center; padding:14px 10px; border-radius:12px; background:rgba(178,32,47,.18); border:1px solid rgba(178,32,47,.45);">
+                  <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; color:#e3a6ac;">ROUND WORD</div>
+                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f4c9cd; margin-top:5px;">{{ roundWord }}</div>
+                </div>
+              </div>
+          </div>
+          <div style="margin-top:26px; padding:0 30px; text-align:center;">
+            <sc-if value="{{ caughtSpy }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family:'Cinzel',serif; font-weight:700; font-size:20px; color:#9ad2a3;">The Cast wins! 🎉</div>
+              <div style="font-family:'EB Garamond',serif; font-size:15px; color:#d8c79f; margin-top:6px;">You unmasked the jester before the curtain fell.</div>
+            </sc-if>
+            <sc-if value="{{ missedSpy }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Cinzel',serif; font-weight:700; font-size:20px; color:#e8a0a8;">The Jester escapes!</div>
+              <div style="font-family:'EB Garamond',serif; font-size:15px; color:#d8c79f; margin-top:6px;">You accused the wrong performer. The jester takes a bow.</div>
+            </sc-if>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="width:100%; padding:14px 26px 28px;">
+            <div onClick="{{ playAgain }}" style="padding:16px; text-align:center; background:linear-gradient(180deg,#ecdfc0,#d3bf93); color:#3c0a10; font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.05em; border-radius:10px; cursor:pointer;" class="imp-btn">ENCORE · PLAY AGAIN</div>
+          </div>
+        </div>
+      </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'lobby', vote: null, viewed: {}, activePlayer: null, cardOpen: false, gameMode: 'roles',
+    modal: null,
+    playerList: ['Arnav','Esha','Richard'],
+    addingPlayer: false, newName: '', editingIdx: null, editingVal: '',
+    spyCount: 1, spyRandMin: 1, spyRandMax: 3, randJesters: false, showCategory: true, showWord: true, jestersKnow: false, imposterGetsRole: false,
+    timeLimit: 5,
+    categories: ['Locations','Biomes'],
+    selCategories: ['Locations','Biomes'],
+    roundSpyIndices: null,
+    roundCategory: 'Locations',
+    roundWord: '',
+    roundRoleMap: {},
+    roundSpyRoleMap: {},
+  };
+
+  renderVals() {
+    const st = this.state;
+    const wine = '#6e141c', crimson = '#b3202f', navy = '#14254a';
+    const goldFace = '#e6cb7e', ivoryFace = '#efe4c8';
+
+    const faceColors = ['#efe4c8','#e7d9b6','#e0cfa6','#ecdfc0','#e8ddb5','#f0e6c9'];
+    const lineColors = ['#7a1620','#14254a','#2e5bb0','#6e141c','#4a3010','#7a1620'];
+    // Word/role data lives in ./impfall-locations-data.js (loaded in <head>)
+    // so it isn't inlined here — see window.IMPFALL_LOCATIONS_DATA.
+    const { biomeCatalog, locationCatalog, fakeLocationRoleCatalog, fakeBiomeRoleCatalog } = window.IMPFALL_LOCATIONS_DATA;
+    const biomeNames = Object.keys(biomeCatalog);
+    const locationNames = Object.keys(locationCatalog);
+    const shuffle = (items) => {
+      const next = [...items];
+      for (let i = next.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [next[i], next[j]] = [next[j], next[i]];
+      }
+      return next;
+    };
+    const maxSpies = Math.max(0, st.playerList.length - 1);
+    const jesterCount = Math.min(st.spyCount, maxSpies);
+    const roundSpyIndices = Array.isArray(st.roundSpyIndices) ? st.roundSpyIndices : [];
+    const jesterIndices = new Set(roundSpyIndices);
+    const players = st.playerList.map((name, i) => ({
+      name,
+      comedy: i % 2 === 0,
+      tragedy: i % 2 !== 0,
+      face: faceColors[i % faceColors.length],
+      line: lineColors[i % lineColors.length],
+      spy: jesterIndices.has(i),
+      you: i === 0,
+    }));
+    const jesterNames = players.filter(p => p.spy).map(p => p.name);
+
+    const lobby = players.map((p, i) => ({ ...p, host: i === 0, notHost: i !== 0 }));
+
+    const votable = players.filter(p => !p.you).map(p => {
+      const selected = st.vote === p.name;
+      const votes = selected ? 1 : 0;
+      return {
+        ...p, selected,
+        voteLabel: votes === 1 ? '1 vote' : votes + ' votes',
+        tileBg: selected ? 'rgba(230,203,126,.16)' : 'rgba(255,255,255,.04)',
+        tileBorder: selected ? '2px solid #e6cb7e' : '1px solid rgba(200,162,76,.2)',
+        onVote: () => this.setState({ vote: p.name }),
+      };
+    });
+
+    const roundCategory = st.roundCategory || 'Locations';
+    const roundRoleMap = st.roundRoleMap || {};
+    const roundSpyRoleMap = st.roundSpyRoleMap || {};
+    const isBiomeRound = roundCategory === 'Biomes';
+    const isLocationRound = roundCategory === 'Locations';
+    const actOnePlayers = players.map(p => {
+      const seen = !!st.viewed[p.name];
+      return {
+        ...p, shortName: p.name.replace(' (You)', ''), seen,
+        rowBg: seen ? 'rgba(144,200,144,.07)' : 'rgba(255,255,255,.05)',
+        rowBorder: seen ? '1px solid rgba(144,200,144,.3)' : '1px solid rgba(200,162,76,.15)',
+        labelColor: seen ? '#7fcf8a' : '#caa64f',
+        label: seen ? '✓ Ready' : 'Tap →',
+        onTap: () => this.setState({ activePlayer: p, cardOpen: false }),
+      };
+    });
+    const allSeen = players.every(p => st.viewed[p.name]);
+    const ap = st.activePlayer;
+    const apIsSpy = ap && !!ap.spy;
+    const apRoundRole = ap && !apIsSpy ? (roundRoleMap[ap.name] || 'PERFORMER') : null;
+    const apDisguised = apIsSpy && st.gameMode === 'roles' && st.imposterGetsRole;
+    const apFakeRole = apDisguised ? (roundSpyRoleMap[ap.name] || null) : null;
+    const apIsUndisguisedJester = apIsSpy && !apDisguised;
+    const closeOverlay = () => {
+      if (ap) this.setState(s => ({ activePlayer: null, cardOpen: false, viewed: { ...s.viewed, [ap.name]: true } }));
+    };
+    const openCurtain = () => this.setState({ cardOpen: true });
+
+    const voteName = st.vote || '';
+    const spyPlayer = players.find(p => p.spy);
+    return {
+      actOnePlayers, allSeen, notAllSeen: !allSeen,
+      showOverlay: !!ap,
+      hideOverlay: !ap,
+      apName: ap ? ap.name.replace(' (You)', '') : '',
+      apComedy: ap ? ap.comedy : true, apTragedy: ap ? ap.tragedy : false,
+      apFace: ap ? ap.face : '#efe4c8', apLine: ap ? ap.line : '#7a1620',
+      apRole: apIsUndisguisedJester ? 'THE JESTER' : (apIsSpy ? (apFakeRole || 'PERFORMER') : apRoundRole),
+      apRoleColor: apIsUndisguisedJester ? '#b3202f' : (isBiomeRound ? '#2e5bb0' : '#caa64f'),
+      apRoleSize: apIsUndisguisedJester ? '26px' : (isBiomeRound ? '22px' : '23px'),
+      apWord: apIsSpy ? null : st.roundWord,
+      apWordLabel: isBiomeRound ? 'Your biome' : 'Your location',
+      apWordSize: isBiomeRound ? '20px' : '22px',
+      apWordBlockStyle: (st.gameMode === 'words' || st.showWord) ? '' : 'display:none;',
+      apIsUndisguisedJester,
+      apIsPerformer: !apIsSpy,
+      apHint: apIsUndisguisedJester
+        ? 'You have no word. Blend in, bluff your clues, and avoid being unmasked before the curtain falls.'
+        : isBiomeRound
+          ? 'The biome is your secret. Give clues that fit your animal role without making the answer obvious.'
+          : isLocationRound
+            ? 'The location is your secret. Give clues that fit your role without making the answer obvious.'
+          : 'Give clues that prove you know the word — without giving it away to the Jester.',
+      apJesterAllies: apIsUndisguisedJester && st.jestersKnow && jesterNames.length > 1
+        ? jesterNames.filter(n => n !== (ap ? ap.name : '')).join(', ')
+        : null,
+      apShowAllies: apIsUndisguisedJester && st.jestersKnow && jesterNames.length > 1,
+      gameCategory: roundCategory,
+      roundWordBlockStyle: (st.gameMode === 'words' || st.showWord) ? '' : 'display:none;',
+      cardOpen: st.cardOpen, cardNotOpen: !st.cardOpen,
+      openCurtain, closeOverlay,
+      leftCurtain: { position:'absolute', left:0, top:0, bottom:0, width:'50.5%', background:'repeating-linear-gradient(90deg,#6e141c 0 12px,#56101a 12px 22px)', boxShadow:'inset -16px 0 30px rgba(0,0,0,.5)', display:'flex', alignItems:'center', justifyContent:'flex-end', transform: st.cardOpen ? 'translateX(-104%)' : 'translateX(0)', transition: 'transform 1.1s cubic-bezier(.7,0,.18,1)' },
+      rightCurtain: { position:'absolute', right:0, top:0, bottom:0, width:'50.5%', background:'repeating-linear-gradient(90deg,#56101a 0 12px,#6e141c 12px 22px)', boxShadow:'inset 16px 0 30px rgba(0,0,0,.5)', display:'flex', alignItems:'center', justifyContent:'flex-start', transform: st.cardOpen ? 'translateX(104%)' : 'translateX(0)', transition: 'transform 1.1s cubic-bezier(.7,0,.18,1)' },
+      curtainHint: st.cardOpen ? '' : 'TAP TO REVEAL',
+      modal: st.modal,
+      hasModal: !!st.modal,
+      isModalCategories: st.modal === 'categories',
+      isModalJesters: st.modal === 'jesters',
+      isModalTime: st.modal === 'time',
+      isModalHelp: st.modal === 'help',
+      isModalSettings: st.modal === 'settings',
+      isModalGameSettings: st.modal === 'gameSettings',
+      closeModal: () => this.setState({ modal: null }),
+      openPlayers: () => this.setState({ screen: 'players' }),
+      openCategories: () => this.setState({ modal: 'categories' }),
+      openJesters: () => this.setState({ modal: 'jesters' }),
+      openTime: () => this.setState({ modal: 'time' }),
+      openHelp: () => this.setState({ modal: 'help' }),
+      openSettings: () => this.setState({ modal: 'settings' }),
+      openGameSettings: () => this.setState({ modal: 'gameSettings' }),
+      gameSettingsSummary: [st.showCategory ? 'Show Category' : null, st.showWord ? 'Show Word' : 'Word Hidden', st.jestersKnow ? 'Jesters Know Each Other' : null, (st.gameMode === 'roles' && st.imposterGetsRole) ? 'Imposter Gets Role' : null].filter(Boolean).join(' · ') || 'Default',
+      playerItems: st.playerList.map((name, i) => {
+        const editing = st.editingIdx === i;
+        const p = players[i] || players[0];
+        return {
+          name, i, editing, notEditing: !editing,
+          comedy: p.comedy, tragedy: p.tragedy, face: p.face, line: p.line,
+          editVal: editing ? st.editingVal : name,
+          onEditTap: () => this.setState({ editingIdx: i, editingVal: name }),
+          onEditChange: (e) => this.setState({ editingVal: e.target.value }),
+          onEditKeyDown: (e) => {
+            if (e.key === 'Enter' || e.key === 'Escape') {
+              const pl = [...st.playerList];
+              if (e.key === 'Enter' && st.editingVal.trim()) pl[i] = st.editingVal.trim();
+              this.setState({ playerList: pl, editingIdx: null, editingVal: '' });
+            }
+          },
+          onEditBlur: () => {
+            const pl = [...st.playerList];
+            if (st.editingVal.trim()) pl[i] = st.editingVal.trim();
+            this.setState({ playerList: pl, editingIdx: null, editingVal: '' });
+          },
+          onRemove: () => {
+            const pl = st.playerList.filter((_, j) => j !== i);
+            this.setState({ playerList: pl, editingIdx: null });
+          },
+        };
+      }),
+      addingPlayer: st.addingPlayer, notAddingPlayer: !st.addingPlayer,
+      newName: st.newName,
+      onAddTap: () => this.setState({ addingPlayer: true }),
+      onNameChange: (e) => this.setState({ newName: e.target.value }),
+      onNameKeyDown: (e) => {
+        if (e.key === 'Enter' && st.newName.trim()) {
+          this.setState({ playerList: [...st.playerList, st.newName.trim()], newName: '', addingPlayer: false });
+        }
+      },
+      confirmAdd: () => {
+        if (st.newName.trim()) this.setState({ playerList: [...st.playerList, st.newName.trim()], newName: '', addingPlayer: false });
+      },
+      cancelAdd: () => this.setState({ addingPlayer: false, newName: '' }),
+      categoryItems: st.categories.map(cat => ({
+        cat,
+        sel: st.selCategories.includes(cat),
+        tileBg: st.selCategories.includes(cat) ? 'linear-gradient(135deg,#7a1620,#4d0e14)' : 'rgba(255,255,255,.05)',
+        tileBorder: st.selCategories.includes(cat) ? '1.5px solid #caa64f' : '1px solid rgba(200,162,76,.15)',
+        color: st.selCategories.includes(cat) ? '#f0e6c9' : '#8a9ab8',
+        onToggle: () => {
+          const s = st.selCategories;
+          const next = s.includes(cat) ? (s.length > 1 ? s.filter(c => c !== cat) : s) : [...s, cat];
+          this.setState({ selCategories: next });
+        },
+      })),
+      catSummary: st.selCategories.length === st.categories.length ? st.categories.join(', ') : st.selCategories.join(', '),
+      spyCount: st.spyCount,
+      incSpy: () => this.setState({ spyCount: Math.min(st.spyCount + 1, maxSpies) }),
+      decSpy: () => this.setState({ spyCount: Math.max(st.spyCount - 1, maxSpies > 0 ? 1 : 0) }),
+      spyLabel: st.spyCount === 1 ? '1 Jester' : st.spyCount + ' Jesters',
+      spyRandMin: st.spyRandMin,
+      spyRandMax: st.spyRandMax,
+      incRandMin: () => this.setState({ spyRandMin: Math.min(st.spyRandMin + 1, st.spyRandMax) }),
+      decRandMin: () => this.setState({ spyRandMin: Math.max(st.spyRandMin - 1, 1) }),
+      incRandMax: () => this.setState({ spyRandMax: Math.min(st.spyRandMax + 1, maxSpies) }),
+      decRandMax: () => this.setState({ spyRandMax: Math.max(st.spyRandMax - 1, st.spyRandMin) }),
+      randJesters: st.randJesters,
+      randJestersBg: st.randJesters ? '#b3202f' : 'rgba(255,255,255,.12)',
+      randJestersThumb: st.randJesters ? 'translateX(22px)' : 'translateX(2px)',
+      toggleRandJesters: () => this.setState({ randJesters: !st.randJesters }),
+      showCategory: st.showCategory,
+      showCatBg: st.showCategory ? '#b3202f' : 'rgba(255,255,255,.12)',
+      showCatThumb: st.showCategory ? 'translateX(22px)' : 'translateX(2px)',
+      toggleShowCat: () => this.setState({ showCategory: !st.showCategory }),
+      showWord: st.gameMode === 'words' ? true : st.showWord,
+      showWordBg: (st.gameMode === 'words' || st.showWord) ? '#b3202f' : 'rgba(255,255,255,.12)',
+      showWordThumb: (st.gameMode === 'words' || st.showWord) ? 'translateX(22px)' : 'translateX(2px)',
+      showWordToggleOpacity: st.gameMode === 'words' ? '.55' : '1',
+      showWordTogglePointerEvents: st.gameMode === 'words' ? 'none' : 'auto',
+      toggleShowWord: () => {
+        if (st.gameMode === 'words') return;
+        this.setState({ showWord: !st.showWord });
+      },
+      jestersKnow: st.jestersKnow,
+      jestersKnowBg: st.jestersKnow ? '#b3202f' : 'rgba(255,255,255,.12)',
+      jestersKnowThumb: st.jestersKnow ? 'translateX(22px)' : 'translateX(2px)',
+      toggleJestersKnow: () => this.setState({ jestersKnow: !st.jestersKnow }),
+      imposterGetsRole: st.gameMode === 'roles' ? st.imposterGetsRole : false,
+      imposterGetsRoleDesc: st.gameMode === 'words' ? 'Roles-only setting — unavailable in Word Mode' : 'The Jester is handed a normal-looking fake role instead of being told they’re the Jester',
+      imposterGetsRoleBg: (st.gameMode === 'roles' && st.imposterGetsRole) ? '#b3202f' : 'rgba(255,255,255,.12)',
+      imposterGetsRoleThumb: (st.gameMode === 'roles' && st.imposterGetsRole) ? 'translateX(22px)' : 'translateX(2px)',
+      imposterGetsRoleToggleOpacity: st.gameMode === 'words' ? '.55' : '1',
+      imposterGetsRoleTogglePointerEvents: st.gameMode === 'words' ? 'none' : 'auto',
+      toggleImposterGetsRole: () => {
+        if (st.gameMode === 'words') return;
+        this.setState({ imposterGetsRole: !st.imposterGetsRole });
+      },
+      timeLimit: st.timeLimit,
+      timeLimitDisplay: st.timeLimit === 0 ? '∞' : String(st.timeLimit),
+      timeLimitUnit: st.timeLimit === 0 ? 'No limit' : st.timeLimit === 1 ? 'minute' : 'minutes',
+      timeLimitRow: st.timeLimit === 0 ? 'No limit' : st.timeLimit + ' min',
+      incTime: () => this.setState({ timeLimit: st.timeLimit === 0 ? 0 : st.timeLimit >= 10 ? 0 : st.timeLimit + 1 }),
+      decTime: () => this.setState({ timeLimit: st.timeLimit === 0 ? 10 : Math.max(st.timeLimit - 1, 1) }),
+      playerNames: st.playerList.join(', '),
+      playerCount: st.playerList.length,
+      isLobby: st.screen === 'lobby',
+      isPlayers: st.screen === 'players',
+      isReveal: st.screen === 'reveal',
+      isVoting: st.screen === 'voting',
+      isResults: st.screen === 'results',
+      backToLobbyFromPlayers: () => this.setState({ screen: 'lobby' }),
+      gameMode: st.gameMode,
+      showRoleHeading: st.gameMode !== 'words',
+      setRoleMode: () => this.setState({ gameMode: 'roles' }),
+      setWordMode: () => this.setState({ gameMode: 'words', showWord: true, imposterGetsRole: false }),
+      roleTileBg: st.gameMode === 'roles' ? 'linear-gradient(135deg,#7a1620,#4d0e14)' : 'rgba(255,255,255,.04)',
+      roleTileBorder: st.gameMode === 'roles' ? '1.5px solid #caa64f' : '1px solid rgba(255,255,255,.08)',
+      roleTileColor: st.gameMode === 'roles' ? '#f0e6c9' : '#8a9ab8',
+      roleTileSubColor: st.gameMode === 'roles' ? '#c6a96e' : '#5f6c86',
+      wordTileBg: st.gameMode === 'words' ? 'linear-gradient(135deg,#7a1620,#4d0e14)' : 'rgba(255,255,255,.04)',
+      wordTileBorder: st.gameMode === 'words' ? '1.5px solid #caa64f' : '1px solid rgba(255,255,255,.08)',
+      wordTileColor: st.gameMode === 'words' ? '#f0e6c9' : '#8a9ab8',
+      wordTileSubColor: st.gameMode === 'words' ? '#c6a96e' : '#5f6c86',
+      wine, crimson, navy, goldFace, ivoryFace,
+      lobby, votable,
+      revealedName: spyPlayer ? spyPlayer.name : 'Unknown',
+      goReveal: () => {
+        let newSpyCount = st.spyCount;
+        if (st.randJesters) {
+          const min = st.spyRandMin;
+          const max = Math.min(st.spyRandMax, maxSpies);
+          newSpyCount = Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        const shuffledIndices = st.playerList.map((_, index) => index).sort(() => Math.random() - 0.5);
+        const selectedSpyIndices = shuffledIndices.slice(0, Math.min(newSpyCount, maxSpies));
+        const chosenCategory = st.selCategories.length === 1
+          ? st.selCategories[0]
+          : (st.selCategories.includes('Biomes') && !st.selCategories.includes('Locations')
+            ? 'Biomes'
+            : st.selCategories.includes('Locations') && !st.selCategories.includes('Biomes')
+              ? 'Locations'
+              : (Math.random() < 0.5 ? 'Locations' : 'Biomes'));
+        let nextRound = { roundCategory: 'Locations', roundWord: '', roundRoleMap: {}, roundSpyRoleMap: {} };
+        const rolePlayers = players.filter(p => !p.spy);
+        const spyIndexSet = new Set(selectedSpyIndices);
+        const spyPlayerNames = st.playerList.filter((_, i) => spyIndexSet.has(i));
+        const useImposterRole = st.gameMode === 'roles' && st.imposterGetsRole;
+        if (chosenCategory === 'Biomes') {
+          const biomeName = biomeNames[Math.floor(Math.random() * biomeNames.length)];
+          const biomeRoles = shuffle(biomeCatalog[biomeName]);
+          const roundRoleMap = rolePlayers.reduce((acc, player, index) => {
+            acc[player.name] = biomeRoles[index % biomeRoles.length];
+            return acc;
+          }, {});
+          let roundSpyRoleMap = {};
+          if (useImposterRole) {
+            const fakeRoles = shuffle(fakeBiomeRoleCatalog[biomeName] || []);
+            roundSpyRoleMap = spyPlayerNames.reduce((acc, name, index) => {
+              acc[name] = fakeRoles[index % fakeRoles.length];
+              return acc;
+            }, {});
+          }
+          nextRound = { roundCategory: 'Biomes', roundWord: biomeName, roundRoleMap, roundSpyRoleMap };
+        } else {
+          const locationName = locationNames[Math.floor(Math.random() * locationNames.length)];
+          const locationRoles = shuffle(locationCatalog[locationName]);
+          const roundRoleMap = rolePlayers.reduce((acc, player, index) => {
+            acc[player.name] = locationRoles[index % locationRoles.length];
+            return acc;
+          }, {});
+          let roundSpyRoleMap = {};
+          if (useImposterRole) {
+            const fakeRoles = shuffle(fakeLocationRoleCatalog[locationName] || []);
+            roundSpyRoleMap = spyPlayerNames.reduce((acc, name, index) => {
+              acc[name] = fakeRoles[index % fakeRoles.length];
+              return acc;
+            }, {});
+          }
+          nextRound = { roundCategory: 'Locations', roundWord: locationName, roundRoleMap, roundSpyRoleMap };
+        }
+        this.setState({ screen: 'reveal', viewed: {}, activePlayer: null, cardOpen: false, spyCount: newSpyCount, roundSpyIndices: selectedSpyIndices, ...nextRound });
+      },
+      goVoting: () => this.setState({ screen: 'voting' }),
+      goResults: () => this.setState({ screen: 'results' }),
+      backToLobby: () => this.setState({ screen: 'lobby', vote: null, viewed: {}, activePlayer: null, cardOpen: false, roundSpyIndices: null }),
+      backToReveal: () => this.setState({ screen: 'reveal', vote: null, activePlayer: null, cardOpen: false }),
+      playAgain: () => this.setState({ screen: 'lobby', vote: null, viewed: {}, activePlayer: null, cardOpen: false, roundSpyIndices: null }),
+      hasVote: st.vote !== null, notHasVote: st.vote === null,
+      voteUpper: voteName.toUpperCase(),
+      caughtSpy: st.vote !== null && players.find(p => p.name === st.vote)?.spy,
+      missedSpy: st.vote !== null && !players.find(p => p.name === st.vote)?.spy,
+    };
+  }
+}
+</script>
+</body>
+</html>

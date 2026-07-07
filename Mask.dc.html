@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<svg viewBox="0 0 100 110" width="{{ size }}" height="{{ size }}" style="display:block; overflow:visible">
+  <!-- face -->
+  <path d="M50 6 C26 6 13 26 13 52 C13 82 30 108 50 108 C70 108 87 82 87 52 C87 26 74 6 50 6 Z" fill="{{ faceColor }}" stroke="{{ lineColor }}" stroke-width="2.5"></path>
+  <!-- subtle depth shadow -->
+  <path d="M50 6 C26 6 13 26 13 52 C13 82 30 108 50 108 C70 108 87 82 87 52 C87 26 74 6 50 6 Z" fill="none" stroke="#000" stroke-opacity="0.07" stroke-width="6"></path>
+  <!-- top ornament dot -->
+  <circle cx="50" cy="12" r="3.5" fill="{{ lineColor }}"></circle>
+
+  <!-- COMEDY face -->
+  <sc-if value="{{ comedy }}" hint-placeholder-val="{{ true }}">
+    <g>
+      <!-- brows arched up = happy -->
+      <path d="M22 40 Q31 32 42 38" fill="none" stroke="{{ lineColor }}" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M58 38 Q69 32 78 40" fill="none" stroke="{{ lineColor }}" stroke-width="3" stroke-linecap="round"></path>
+      <!-- eyes squinting happy -->
+      <path d="M25 50 Q34 44 43 50 Q34 55 25 50 Z" fill="{{ lineColor }}"></path>
+      <path d="M57 50 Q66 44 75 50 Q66 55 57 50 Z" fill="{{ lineColor }}"></path>
+      <!-- big open laugh mouth -->
+      <path d="M28 72 Q50 96 72 72" fill="none" stroke="{{ lineColor }}" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M28 72 Q50 88 72 72 Q50 96 28 72 Z" fill="{{ lineColor }}" opacity="0.45"></path>
+    </g>
+  </sc-if>
+
+  <!-- TRAGEDY face -->
+  <sc-if value="{{ tragedy }}" hint-placeholder-val="{{ false }}">
+    <g>
+      <!-- brows angled down = sad -->
+      <path d="M22 38 Q31 44 42 40" fill="none" stroke="{{ lineColor }}" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M58 40 Q69 44 78 38" fill="none" stroke="{{ lineColor }}" stroke-width="3" stroke-linecap="round"></path>
+      <!-- eyes heavy -->
+      <path d="M25 52 Q34 47 43 53 Q34 57 25 52 Z" fill="{{ lineColor }}"></path>
+      <path d="M57 53 Q66 47 75 52 Q66 57 57 53 Z" fill="{{ lineColor }}"></path>
+      <!-- tear drop -->
+      <path d="M38 58 Q36 66 38 72 Q41 66 38 58 Z" fill="{{ lineColor }}" opacity="0.5"></path>
+      <!-- downturned mouth -->
+      <path d="M30 88 Q50 68 70 88" fill="none" stroke="{{ lineColor }}" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M30 88 Q50 76 70 88 Q50 68 30 88 Z" fill="{{ lineColor }}" opacity="0.4"></path>
+    </g>
+  </sc-if>
+
+  <!-- CRACK for spy -->
+  <sc-if value="{{ cracked }}" hint-placeholder-val="{{ false }}">
+    <path d="M54 6 L46 28 L60 48 L44 68 L58 92 L48 108" fill="none" stroke="#0c0608" stroke-width="3" stroke-linejoin="round" opacity="0.85"></path>
+    <path d="M54 6 L46 28 L60 48 L44 68 L58 92 L48 108" fill="none" stroke="rgba(255,80,60,.3)" stroke-width="1.2" stroke-linejoin="round"></path>
+  </sc-if>
+</svg>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:120,&quot;height&quot;:132},&quot;comedy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;tragedy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;cracked&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;faceColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#EDE0C2&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lineColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#7A1620&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:120,&quot;tsType&quot;:&quot;number&quot;}}"></script>
+</body>
+</html>
