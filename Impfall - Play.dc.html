@@ -462,22 +462,10 @@
                   <div style="display:flex; justify-content:center; margin-bottom:14px;">
                     <dc-import name="Mask" comedy="{{ apComedy }}" tragedy="{{ apTragedy }}" cracked="{{ apIsUndisguisedJester }}" face-color="{{ apFace }}" line-color="{{ apLine }}" size="{{ 60 }}" hint-size="60px,76px"></dc-import>
                   </div>
-                  <sc-if value="{{ showRoleHeading }}" hint-placeholder-val="{{ true }}">
-                    <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:#9a7d3a;">You are the</div>
-                    <div style="font-family:'Cinzel',serif; font-weight:800; font-size:{{ apRoleSize }}; color:{{ apRoleColor }}; margin:5px 0 16px; letter-spacing:.04em; text-wrap:balance;">{{ apRole }}</div>
-                    <div style="width:50px; height:1px; background:rgba(110,20,28,.35); margin-bottom:16px;"></div>
-                  </sc-if>
-                  <!-- Performer: word only -->
-                  <sc-if value="{{ apIsPerformer }}" hint-placeholder-val="{{ true }}">
-                    <div style="{{ apWordBlockStyle }}">
-                      <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:#9a7d3a;">{{ apWordLabel }}</div>
-                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:{{ apWordSize }}; color:#14254a; margin-top:5px; text-wrap:balance;">{{ apWord }}</div>
-                    </div>
-                  </sc-if>
-                  <!-- Jester: no word -->
+                  <!-- Jester: role only, no word -->
                   <sc-if value="{{ apIsUndisguisedJester }}" hint-placeholder-val="{{ false }}">
-                    <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:#b3202f;">No Word Assigned</div>
-                    <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:14px; color:#7a3030; margin-top:5px; line-height:1.3;">You are flying blind.</div>
+                    <div style="font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:.15em; text-transform:uppercase; text-decoration:underline; color:{{ apRoleColor }};">Role</div>
+                    <div style="font-family:'Cinzel',serif; font-weight:800; font-size:{{ apRoleSize }}; color:{{ apRoleColor }}; letter-spacing:.04em; text-wrap:balance; margin-top:4px;">{{ apRole }}</div>
                     <sc-if value="{{ apShowAllies }}" hint-placeholder-val="{{ false }}">
                       <div style="margin-top:12px; padding:8px 12px; background:rgba(178,32,47,.15); border:1px solid rgba(178,32,47,.4); border-radius:8px; text-align:center;">
                         <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:#b3202f; margin-bottom:3px;">Your Fellow Jesters</div>
@@ -485,7 +473,17 @@
                       </div>
                     </sc-if>
                   </sc-if>
-                  <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:12px; color:#8a6d3e; margin-top:14px; line-height:1.4;">{{ apHint }}</div>
+                  <!-- Performer: category/word (words mode) above role (roles mode) -->
+                  <sc-if value="{{ apIsPerformer }}" hint-placeholder-val="{{ true }}">
+                    <div style="{{ apWordBlockStyle }}">
+                      <div style="font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:.15em; text-transform:uppercase; text-decoration:underline; color:#14254a;">{{ apWordLabel }}</div>
+                      <div style="font-family:'Cinzel',serif; font-weight:700; font-size:{{ apWordSize }}; color:#14254a; text-wrap:balance; margin-top:4px;">{{ apWord }}</div>
+                    </div>
+                    <sc-if value="{{ showRoleHeading }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-family:'Archivo',sans-serif; font-size:11px; letter-spacing:.15em; text-transform:uppercase; text-decoration:underline; color:{{ apRoleColor }}; margin-top:12px;">Role</div>
+                      <div style="font-family:'Cinzel',serif; font-weight:800; font-size:{{ apRoleSize }}; color:{{ apRoleColor }}; letter-spacing:.04em; text-wrap:balance; margin-top:4px;">{{ apRole }}</div>
+                    </sc-if>
+                  </sc-if>
                 </div>
                 <div style="{{ leftCurtain }}">
                   <div style="width:3px; height:84%; background:linear-gradient(180deg,transparent,#e6cb7e,transparent); opacity:.55;"></div>
@@ -604,12 +602,12 @@
           <div style="display:flex; gap:14px; margin-top:24px; padding:0 26px; width:100%; justify-content:center;">
             <div style="flex:1; max-width:140px; text-align:center; padding:14px 10px; border-radius:12px; background:rgba(46,91,176,.18); border:1px solid rgba(46,91,176,.4);">
               <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; color:#9fb0cf;">ROUND CATEGORY</div>
-              <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#cfe0ff; margin-top:5px;">{{ roundCategory }}</div>
+              <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#cfe0ff; margin-top:5px;">{{ gameCategory }}</div>
             </div>
               <div style="{{ roundWordBlockStyle }}">
                 <div style="flex:1; max-width:140px; text-align:center; padding:14px 10px; border-radius:12px; background:rgba(178,32,47,.18); border:1px solid rgba(178,32,47,.45);">
                   <div style="font-family:'Archivo',sans-serif; font-size:9px; letter-spacing:.2em; color:#e3a6ac;">ROUND WORD</div>
-                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f4c9cd; margin-top:5px;">{{ roundWord }}</div>
+                  <div style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#f4c9cd; margin-top:5px;">{{ roundWordDisplay }}</div>
                 </div>
               </div>
           </div>
@@ -742,7 +740,7 @@ class Component extends DCLogic {
       apRoleColor: apIsUndisguisedJester ? '#b3202f' : (isBiomeRound ? '#2e5bb0' : '#caa64f'),
       apRoleSize: apIsUndisguisedJester ? '26px' : (isBiomeRound ? '22px' : '23px'),
       apWord: apIsSpy ? null : st.roundWord,
-      apWordLabel: isBiomeRound ? 'Your biome' : 'Your location',
+      apWordLabel: isBiomeRound ? 'Biome' : 'Location',
       apWordSize: isBiomeRound ? '20px' : '22px',
       apWordBlockStyle: (st.gameMode === 'words' || st.showWord) ? '' : 'display:none;',
       apIsUndisguisedJester,
@@ -759,7 +757,8 @@ class Component extends DCLogic {
         : null,
       apShowAllies: apIsUndisguisedJester && st.jestersKnow && jesterNames.length > 1,
       gameCategory: roundCategory,
-      roundWordBlockStyle: (st.gameMode === 'words' || st.showWord) ? '' : 'display:none;',
+      roundWordBlockStyle: '',
+      roundWordDisplay: st.roundWord,
       cardOpen: st.cardOpen, cardNotOpen: !st.cardOpen,
       openCurtain, closeOverlay,
       leftCurtain: { position:'absolute', left:0, top:0, bottom:0, width:'50.5%', background:'repeating-linear-gradient(90deg,#6e141c 0 12px,#56101a 12px 22px)', boxShadow:'inset -16px 0 30px rgba(0,0,0,.5)', display:'flex', alignItems:'center', justifyContent:'flex-end', transform: st.cardOpen ? 'translateX(-104%)' : 'translateX(0)', transition: 'transform 1.1s cubic-bezier(.7,0,.18,1)' },
