@@ -1,7 +1,7 @@
-// Impfall word/role data — Locations, Biomes, and Historical Eras catalogs.
+// Impfall word/role data — Locations, Biomes, Historical Eras, and Movies catalogs.
 // Loaded as a plain script (not a dc-runtime file) so it can sit in its own
 // file; exposes everything on window.IMPFALL_LOCATIONS_DATA for
-// "Impfall - Play.dc.html" to read at render time.
+// "index.html" to read at render time.
 (function () {
   var biomeCatalog = {
     'Arctic Tundra': ['Polar Bear','Arctic Fox','Snowy Owl','Walrus','Reindeer','Arctic Hare','Musk Ox','Lemming'],

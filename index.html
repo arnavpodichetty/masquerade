@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masquerade</title>
 <script src="./support.js"></script>
 <script src="./impfall-locations-data.js"></script>
 </head>
@@ -35,7 +36,7 @@
 </helmet>
 
 <div style="width:100%; height:100dvh; background:radial-gradient(120% 70% at 50% -10%, rgba(46,91,176,.12), transparent 60%), #05020a; display:flex; align-items:center; justify-content:center;">
-  <div style="width:100%; max-width:480px; height:100%; max-height:900px; position:relative; overflow:hidden; background:#1a070b; box-shadow:0 30px 90px rgba(0,0,0,.6);">
+  <div id="phone-shell" style="width:100%; max-width:480px; height:100%; max-height:900px; position:relative; overflow:hidden; background:#1a070b; box-shadow:0 30px 90px rgba(0,0,0,.6); transform-origin:center center;">
 
       <!-- ====== LOBBY / SETUP ====== -->
       <sc-if value="{{ isLobby }}" hint-placeholder-val="{{ true }}">
@@ -664,8 +665,36 @@ class Component extends DCLogic {
     secondsLeft: null,
   };
 
+  componentDidMount() {
+    this.__fitPhoneShell = this.__fitPhoneShell.bind(this);
+    this.__fitPhoneShell();
+    window.addEventListener('resize', this.__fitPhoneShell);
+  }
+
   componentWillUnmount() {
     this.__clearTimer();
+    window.removeEventListener('resize', this.__fitPhoneShell);
+  }
+
+  __fitPhoneShell() {
+    const el = document.getElementById('phone-shell');
+    if (!el) return;
+    const BREAKPOINT = 640, BASE_W = 480, BASE_H = 900, MAX_SCALE = 1.7;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if (vw < BREAKPOINT) {
+      el.style.transform = 'none';
+      el.style.width = '100%';
+      el.style.maxWidth = BASE_W + 'px';
+      el.style.height = '100%';
+      el.style.maxHeight = BASE_H + 'px';
+      return;
+    }
+    el.style.width = BASE_W + 'px';
+    el.style.height = BASE_H + 'px';
+    el.style.maxWidth = 'none';
+    el.style.maxHeight = 'none';
+    const scale = Math.min(vw / BASE_W, vh / BASE_H, MAX_SCALE);
+    el.style.transform = 'scale(' + scale + ')';
   }
 
   __clearTimer() {
