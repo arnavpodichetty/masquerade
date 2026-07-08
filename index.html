@@ -168,7 +168,7 @@
                   <sc-if value="{{ isWordsMode }}" hint-placeholder-val="{{ false }}">
                     <div style="font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:#9b8a63; margin:18px 0 8px;">Word Categories</div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                      <sc-for list="{{ wordCategoryItems }}" as="c" hint-placeholder-count="3">
+                      <sc-for list="{{ wordCategoryItems }}" as="c" hint-placeholder-count="4">
                         <div onClick="{{ c.onToggle }}" style="padding:14px 12px; border-radius:12px; cursor:pointer; text-align:center; background:{{ c.tileBg }}; border:{{ c.tileBorder }};">
                           <div style="font-family:'Cinzel',serif; font-weight:600; font-size:14px; color:{{ c.color }};">{{ c.cat }}</div>
                         </div>
@@ -261,7 +261,7 @@
                   <div style="display:flex; flex-direction:column; gap:14px;">
                     <div style="padding:14px; background:rgba(255,255,255,.04); border-radius:12px; border-left:3px solid #caa64f;">
                       <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e; margin-bottom:4px;">The Setup</div>
-                      <div style="font-family:'EB Garamond',serif; font-size:14px; color:#b9c6df; line-height:1.5;">Add your players, then choose from Role Categories (Locations, Biomes, Historical Eras, Movies) or Word Categories (Food, Animals, Objects). Each round picks one category — role categories give the Jester a different role, word categories just hide the shared word.</div>
+                      <div style="font-family:'EB Garamond',serif; font-size:14px; color:#b9c6df; line-height:1.5;">Add your players, then choose from Role Categories (Locations, Biomes, Historical Eras, Movie Genres) or Word Categories (Food, Animals, Objects, Movies). Each round picks one category — role categories give the Jester a different role, word categories just hide the shared word.</div>
                     </div>
                     <div style="padding:14px; background:rgba(255,255,255,.04); border-radius:12px; border-left:3px solid #7a1620;">
                       <div style="font-family:'Cinzel',serif; font-weight:700; font-size:14px; color:#e6cb7e; margin-bottom:4px;">The Modes</div>
@@ -676,9 +676,9 @@ class Component extends DCLogic {
     addingPlayer: false, newName: '', editingIdx: null, editingVal: '',
     jesterCount: 1, jesterRandMin: 1, jesterRandMax: 3, randJesters: false, showCategory: true, showWord: true, jestersKnow: false, jesterGetsRole: false,
     timeLimit: 5,
-    categories: ['Locations','Biomes','Historical Eras','Movies'],
-    wordCategories: ['Food','Animals','Objects'],
-    selCategories: ['Locations','Biomes','Historical Eras','Movies','Food','Animals','Objects'],
+    categories: ['Locations','Biomes','Historical Eras','Movie Genres'],
+    wordCategories: ['Food','Animals','Objects','Movies'],
+    selCategories: ['Locations','Biomes','Historical Eras','Movie Genres','Food','Animals','Objects','Movies'],
     roundJesterIndices: null,
     roundCategory: 'Locations',
     roundWord: '',
@@ -817,10 +817,11 @@ class Component extends DCLogic {
     const isBiomeRound = roundCategory === 'Biomes';
     const isLocationRound = roundCategory === 'Locations';
     const isHistoricalRound = roundCategory === 'Historical Eras';
-    const isMovieRound = roundCategory === 'Movies';
+    const isMovieRound = roundCategory === 'Movie Genres';
     const isFoodRound = roundCategory === 'Food';
     const isAnimalsRound = roundCategory === 'Animals';
     const isObjectsRound = roundCategory === 'Objects';
+    const isMoviesWordRound = roundCategory === 'Movies';
     const actOnePlayers = players.map(p => {
       const seen = !!st.viewed[p.name];
       return {
@@ -859,7 +860,7 @@ class Component extends DCLogic {
       apRoleColor: apIsUndisguisedJester ? '#b3202f' : (isBiomeRound ? '#2e5bb0' : (isHistoricalRound ? '#b5893c' : (isMovieRound ? '#2f8f7a' : '#caa64f'))),
       apRoleSize: apIsUndisguisedJester ? '26px' : (isBiomeRound ? '22px' : '23px'),
       apWord: apIsJester ? (apWordDisguised ? apFakeWord : null) : st.roundWord,
-      apWordLabel: isBiomeRound ? 'Biome' : (isHistoricalRound ? 'Era' : (isMovieRound ? 'Genre' : (isFoodRound ? 'Food' : (isAnimalsRound ? 'Animal' : (isObjectsRound ? 'Object' : 'Location'))))),
+      apWordLabel: isBiomeRound ? 'Biome' : (isHistoricalRound ? 'Era' : (isMovieRound ? 'Genre' : (isFoodRound ? 'Food' : (isAnimalsRound ? 'Animal' : (isObjectsRound ? 'Object' : (isMoviesWordRound ? 'Movie' : 'Location')))))),
       apWordSize: isBiomeRound ? '20px' : '22px',
       apWordBlockStyle: (st.gameMode === 'words' || st.showWord) ? '' : 'display:none;',
       apIsUndisguisedJester,
@@ -1052,10 +1053,11 @@ class Component extends DCLogic {
         const getWordPool = (category) => {
           if (category === 'Biomes') return biomeNames;
           if (category === 'Historical Eras') return historicalEraNames;
-          if (category === 'Movies') return movieGenreNames;
+          if (category === 'Movie Genres') return movieGenreNames;
           if (category === 'Food') return wordOnlyCatalog.Food;
           if (category === 'Animals') return wordOnlyCatalog.Animals;
           if (category === 'Objects') return wordOnlyCatalog.Objects;
+          if (category === 'Movies') return wordOnlyCatalog.Movies;
           return locationNames;
         };
         const buildRound = (roundCategory, wordName, roleCatalog, fakeRoleCatalog) => {
@@ -1084,15 +1086,17 @@ class Component extends DCLogic {
         } else if (chosenCategory === 'Historical Eras') {
           const eraName = historicalEraNames[Math.floor(Math.random() * historicalEraNames.length)];
           nextRound = buildRound('Historical Eras', eraName, historicalErasCatalog, fakeHistoricalErasRoleCatalog);
-        } else if (chosenCategory === 'Movies') {
+        } else if (chosenCategory === 'Movie Genres') {
           const genreName = movieGenreNames[Math.floor(Math.random() * movieGenreNames.length)];
-          nextRound = buildRound('Movies', genreName, movieCatalog, fakeMovieRoleCatalog);
+          nextRound = buildRound('Movie Genres', genreName, movieCatalog, fakeMovieRoleCatalog);
         } else if (chosenCategory === 'Food') {
           nextRound = buildWordOnlyRound('Food', wordOnlyCatalog.Food);
         } else if (chosenCategory === 'Animals') {
           nextRound = buildWordOnlyRound('Animals', wordOnlyCatalog.Animals);
         } else if (chosenCategory === 'Objects') {
           nextRound = buildWordOnlyRound('Objects', wordOnlyCatalog.Objects);
+        } else if (chosenCategory === 'Movies') {
+          nextRound = buildWordOnlyRound('Movies', wordOnlyCatalog.Movies);
         } else {
           const locationName = locationNames[Math.floor(Math.random() * locationNames.length)];
           nextRound = buildRound('Locations', locationName, locationCatalog, fakeLocationRoleCatalog);
