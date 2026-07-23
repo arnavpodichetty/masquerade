@@ -97,6 +97,7 @@
     componentWillUnmount() {
       this.__clearTimer();
       window.removeEventListener('resize', this.__fitPhoneShell);
+      if (this.__audioCtx) this.__audioCtx.close();
     }
 
     __fitPhoneShell() {
@@ -127,18 +128,49 @@
       }
     }
 
+    __ensureAudioCtx() {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!this.__audioCtx) this.__audioCtx = new Ctx();
+      if (this.__audioCtx.state === 'suspended') this.__audioCtx.resume();
+      return this.__audioCtx;
+    }
+
+    __playTimerSound() {
+      const ctx = this.__ensureAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const beep = (start, freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + start);
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(0.3, now + start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + start + 0.3);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(now + start);
+        osc.stop(now + start + 0.32);
+      };
+      beep(0, 880);
+      beep(0.32, 880);
+      beep(0.64, 1108);
+    }
+
     __startTimer(minutes) {
       this.__clearTimer();
       if (!minutes) {
         this.setState({ secondsLeft: null, timeUp: false });
         return;
       }
+      this.__ensureAudioCtx();
       this.setState({ secondsLeft: minutes * 60, timeUp: false });
       this.__timerId = setInterval(() => {
         const left = (this.state.secondsLeft || 0) - 1;
         if (left <= 0) {
           this.__clearTimer();
           this.setState({ secondsLeft: 0, timeUp: true });
+          this.__playTimerSound();
         } else {
           this.setState({ secondsLeft: left });
         }
