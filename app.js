@@ -1,4 +1,4 @@
-// Masquerade — plain React (no build step). Loaded after React/ReactDOM UMD
+// Masq — plain React (no build step). Loaded after React/ReactDOM UMD
 // and impfall-locations-data.js.
 (function () {
   const h = React.createElement;
@@ -719,7 +719,7 @@
             h('div', { style: css("font-family:'Archivo',sans-serif; font-size:13px; color:#5a6a84;") }, 'Coming Soon')
           ),
           h('div', { style: css('padding:14px 16px; background:rgba(255,255,255,.05); border-radius:12px; text-align:center;') },
-            h('div', { style: css("font-family:'Cinzel Decorative',serif; font-weight:700; font-size:16px; color:#e6cb7e;") }, 'MASQUERADE'),
+            h('div', { style: css("font-family:'Cinzel Decorative',serif; font-weight:700; font-size:16px; color:#e6cb7e;") }, 'MASQ'),
             h('div', { style: css("font-family:'Archivo',sans-serif; font-size:11px; color:#5f6c86; margin-top:4px; letter-spacing:.06em;") }, 'VERSION 1.0')
           )
         )
@@ -730,7 +730,7 @@
       return h('div', { style: css('position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-fade-in .25s ease both;') },
         h('div', { style: css('display:flex; align-items:center; justify-content:space-between; padding:28px 20px 14px;') },
           h('div', { onClick: v.openHelp, className: 'imp-btn', style: css("width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:'Cinzel',serif; font-weight:700; font-size:17px; color:#caa64f;") }, '?'),
-          h('div', { style: css("font-family:'Cinzel Decorative',serif; font-weight:700; font-size:22px; color:#ecdfc0; letter-spacing:.04em;") }, 'MASQUERADE'),
+          h('div', { style: css("font-family:'Cinzel Decorative',serif; font-weight:700; font-size:22px; color:#ecdfc0; letter-spacing:.04em;") }, 'MASQ'),
           h('div', { onClick: v.openSettings, className: 'imp-btn', style: css('width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:#caa64f;') }, '⚙')
         ),
         h('div', { style: css('flex:1; overflow-y:auto; padding:0 18px 14px;') },
