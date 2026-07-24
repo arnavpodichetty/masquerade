@@ -1,5 +1,5 @@
 // Masq — plain React (no build step). Loaded after React/ReactDOM UMD
-// and masq-locations-data.js.
+// and data.js.
 (function () {
   const h = React.createElement;
 
