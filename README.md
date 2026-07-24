@@ -42,3 +42,7 @@ Open `index.html` in a browser (or use the live link above) — no install or bu
 ## Tech
 
 Plain React 18 + ReactDOM, loaded via CDN `<script>` tags — no bundler, package manager, or build step required.
+
+## License
+
+All Rights Reserved — see [LICENSE](LICENSE). Feel free to play the game via the live link above; the source code is not licensed for reuse or redistribution.
