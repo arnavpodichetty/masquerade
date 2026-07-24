@@ -71,7 +71,8 @@
       screen: 'lobby', vote: null, viewed: {}, activePlayer: null, cardOpen: false, gameMode: 'roles',
       modal: null,
       playerList: ['Player 1', 'Player 2', 'Player 3', 'Player 4'],
-      addingPlayer: false, newName: '', editingIdx: null, editingVal: '',
+      playerKeys: [0, 1, 2, 3],
+      addingPlayer: false, newName: '', editingIdx: null, editingVal: '', removingIds: [],
       jesterCount: 1, jesterRandMin: 1, jesterRandMax: 3, randJesters: false, showCategory: true, showWord: true, jestersKnow: false, jesterGetsRole: false,
       timeLimit: 5,
       categories: ['Locations', 'Biomes', 'Historical Eras', 'Movie Genres'],
@@ -87,6 +88,8 @@
       secondsLeft: null,
       timeUp: false,
     };
+
+    __nextPlayerId = 4;
 
     componentDidMount() {
       this.__fitPhoneShell = this.__fitPhoneShell.bind(this);
@@ -328,8 +331,9 @@
         isModalSettings: st.modal === 'settings',
         isModalGameSettings: st.modal === 'gameSettings',
         isModalWordList: st.modal === 'wordList',
+        isModalPlayers: st.modal === 'players',
         closeModal: () => this.setState({ modal: null }),
-        openPlayers: () => this.setState({ screen: 'players' }),
+        openPlayers: () => this.setState({ modal: 'players' }),
         openCategories: () => this.setState({ modal: 'categories' }),
         openJesters: () => this.setState({ modal: 'jesters' }),
         openTime: () => this.setState({ modal: 'time' }),
@@ -351,8 +355,10 @@
         playerItems: st.playerList.map((name, i) => {
           const editing = st.editingIdx === i;
           const p = players[i] || players[0];
+          const pid = (st.playerKeys && st.playerKeys[i] != null) ? st.playerKeys[i] : i;
+          const removing = (st.removingIds || []).includes(pid);
           return {
-            name, i, editing, notEditing: !editing,
+            name, i, pid, editing, notEditing: !editing, removing,
             comedy: p.comedy, tragedy: p.tragedy, face: p.face, line: p.line,
             editVal: editing ? st.editingVal : name,
             onEditTap: () => this.setState({ editingIdx: i, editingVal: name }),
@@ -370,8 +376,19 @@
               this.setState({ playerList: pl, editingIdx: null, editingVal: '' });
             },
             onRemove: () => {
-              const pl = st.playerList.filter((_, j) => j !== i);
-              this.setState({ playerList: pl, editingIdx: null });
+              if (removing) return;
+              this.setState(prev => ({ removingIds: [...(prev.removingIds || []), pid], editingIdx: null }));
+              setTimeout(() => {
+                this.setState(prev => {
+                  const idx = (prev.playerKeys || []).indexOf(pid);
+                  const next = { removingIds: (prev.removingIds || []).filter(x => x !== pid) };
+                  if (idx !== -1) {
+                    next.playerList = prev.playerList.filter((_, j) => j !== idx);
+                    next.playerKeys = prev.playerKeys.filter((_, j) => j !== idx);
+                  }
+                  return next;
+                });
+              }, 280);
             },
           };
         }),
@@ -381,11 +398,11 @@
         onNameChange: (e) => this.setState({ newName: e.target.value }),
         onNameKeyDown: (e) => {
           if (e.key === 'Enter' && st.newName.trim()) {
-            this.setState({ playerList: [...st.playerList, st.newName.trim()], newName: '', addingPlayer: false });
+            this.setState({ playerList: [...st.playerList, st.newName.trim()], playerKeys: [...st.playerKeys, this.__nextPlayerId++], newName: '', addingPlayer: false });
           }
         },
         confirmAdd: () => {
-          if (st.newName.trim()) this.setState({ playerList: [...st.playerList, st.newName.trim()], newName: '', addingPlayer: false });
+          if (st.newName.trim()) this.setState({ playerList: [...st.playerList, st.newName.trim()], playerKeys: [...st.playerKeys, this.__nextPlayerId++], newName: '', addingPlayer: false });
         },
         cancelAdd: () => this.setState({ addingPlayer: false, newName: '' }),
         categoryItems: st.categories.map(mapCategoryItem),
@@ -447,11 +464,9 @@
         playerNames: st.playerList.join(', '),
         playerCount: st.playerList.length,
         isLobby: st.screen === 'lobby',
-        isPlayers: st.screen === 'players',
         isReveal: st.screen === 'reveal',
         isVoting: st.screen === 'voting',
         isResults: st.screen === 'results',
-        backToLobbyFromPlayers: () => this.setState({ screen: 'lobby' }),
         gameMode: st.gameMode,
         isWordsMode: st.gameMode === 'words',
         showRoleHeading: st.gameMode !== 'words',
@@ -832,33 +847,39 @@
           v.isModalHelp && this.helpModal(v),
           v.isModalGameSettings && this.gameSettingsModal(v),
           v.isModalSettings && this.settingsModal(v),
-          v.isModalWordList && this.wordListModal(v)
+          v.isModalWordList && this.wordListModal(v),
+          v.isModalPlayers && this.playersModal(v)
         )
       );
     }
 
-    renderPlayers(v) {
-      return h('div', { style: css('position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-slide-in .3s ease both;') },
-        h('div', { style: css('height:24px;') }),
-        h('div', { style: css('display:flex; align-items:center; gap:12px; padding:0 20px 18px;') },
-          h('div', { onClick: v.backToLobbyFromPlayers, className: 'imp-btn', style: css("font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; flex:none;") }, '‹'),
-          h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:22px; color:#f0e6c9;") }, 'The Cast')
+    playersModal(v) {
+      return h('div', { style: css('background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); max-height:80vh; display:flex; flex-direction:column; animation:imp-slide-up .3s ease both;') },
+        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;') },
+          h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;") }, 'The Cast'),
+          h('div', { onClick: v.closeModal, style: css("font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;") }, '×')
         ),
-        h('div', { style: css('flex:1; overflow-y:auto; padding:0 20px;') },
-          h('div', { style: css('display:flex; flex-direction:column; gap:8px;') },
-            v.playerItems.map((p, i) => h('div', { key: i, style: css('display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:14px; border:1px solid rgba(200,162,76,.15); animation:imp-rise .25s ease both;') },
-              h('div', { style: css('flex:none; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.3); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center;') },
-                h(Mask, { comedy: p.comedy, tragedy: p.tragedy, cracked: false, faceColor: p.face, lineColor: p.line, size: 26 })
-              ),
-              p.editing
-                ? h('input', { onChange: p.onEditChange, onKeyDown: p.onEditKeyDown, onBlur: p.onEditBlur, value: p.editVal, style: css("flex:1; padding:6px 10px; background:rgba(255,255,255,.1); border:1px solid #caa64f; border-radius:8px; color:#f0e6c9; font-family:'EB Garamond',serif; font-size:17px; outline:none;") })
-                : h('div', { onClick: p.onEditTap, style: css("flex:1; font-family:'EB Garamond',serif; font-size:17px; color:#f0e6c9; cursor:text; padding:6px 2px;") }, p.name),
-              h('div', { onClick: p.onRemove, className: 'imp-btn', style: css('width:30px; height:30px; border-radius:50%; background:rgba(178,32,47,.2); border:1px solid rgba(178,32,47,.35); display:flex; align-items:center; justify-content:center; font-size:16px; color:#e6a0a8; cursor:pointer; line-height:1; flex:none;') }, '×')
+        h('div', { style: css('flex:1; overflow-y:auto; margin:0 -4px; padding:0 4px;') },
+          h('div', { style: css('display:flex; flex-direction:column;') },
+            v.playerItems.map((p, i) => h('div', {
+              key: p.pid,
+              style: css(`display:grid; grid-template-rows:${p.removing ? '0fr' : '1fr'}; opacity:${p.removing ? 0 : 1}; margin-bottom:${p.removing ? '0px' : '8px'}; overflow:hidden; transition:grid-template-rows .28s ease, opacity .22s ease, margin-bottom .28s ease; pointer-events:${p.removing ? 'none' : 'auto'};`)
+            },
+              h('div', { style: css('overflow:hidden; min-height:0;') },
+                h('div', { style: css('display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:14px; border:1px solid rgba(200,162,76,.15); animation:imp-rise .25s ease both;') },
+                  h('div', { style: css('flex:none; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.3); border:1px solid rgba(200,162,76,.25); display:flex; align-items:center; justify-content:center;') },
+                    h(Mask, { comedy: p.comedy, tragedy: p.tragedy, cracked: false, faceColor: p.face, lineColor: p.line, size: 26 })
+                  ),
+                  p.editing
+                    ? h('input', { onChange: p.onEditChange, onKeyDown: p.onEditKeyDown, onBlur: p.onEditBlur, value: p.editVal, style: css("flex:1; padding:6px 10px; background:rgba(255,255,255,.1); border:1px solid #caa64f; border-radius:8px; color:#f0e6c9; font-family:'EB Garamond',serif; font-size:17px; outline:none;") })
+                    : h('div', { onClick: p.onEditTap, style: css("flex:1; font-family:'EB Garamond',serif; font-size:17px; color:#f0e6c9; cursor:text; padding:6px 2px;") }, p.name),
+                  h('div', { onClick: p.onRemove, className: 'imp-btn', style: css('width:30px; height:30px; border-radius:50%; background:rgba(178,32,47,.2); border:1px solid rgba(178,32,47,.35); display:flex; align-items:center; justify-content:center; font-size:16px; color:#e6a0a8; cursor:pointer; line-height:1; flex:none;') }, '×')
+                )
+              )
             ))
-          ),
-          h('div', { style: css('height:16px;') })
+          )
         ),
-        h('div', { style: css('padding:12px 20px 28px; background:linear-gradient(0deg,#0e0810 70%,transparent);') },
+        h('div', { style: css('padding-top:14px;') },
           v.addingPlayer
             ? h('div', { style: css('display:flex; gap:8px; align-items:center; animation:imp-rise .2s ease both;') },
                 h('input', { onKeyDown: v.onNameKeyDown, onChange: v.onNameChange, value: v.newName, placeholder: 'Enter player name…', style: css("flex:1; padding:14px 16px; background:rgba(255,255,255,.08); border:1px solid #caa64f; border-radius:12px; color:#f0e6c9; font-family:'EB Garamond',serif; font-size:16px; outline:none;") }),
@@ -1045,7 +1066,6 @@
       return h('div', { style: css('width:100%; height:100dvh; background:radial-gradient(120% 70% at 50% -10%, rgba(46,91,176,.12), transparent 60%), #05020a; display:flex; align-items:center; justify-content:center;') },
         h('div', { id: 'phone-shell', style: css('width:100%; max-width:480px; height:100%; max-height:900px; position:relative; overflow:hidden; background:#1a070b; box-shadow:0 30px 90px rgba(0,0,0,.6); transform-origin:center center;') },
           v.isLobby && this.renderLobby(v),
-          v.isPlayers && this.renderPlayers(v),
           v.isReveal && this.renderReveal(v),
           v.isVoting && this.renderVoting(v),
           v.isResults && this.renderResults(v)
