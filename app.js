@@ -598,7 +598,7 @@
 
     jestersModal(v) {
       return h('div', { style: css('background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;') },
-        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;') },
+        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;') },
           h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;") }, 'Number of Jesters'),
           h('div', { onClick: v.closeModal, style: css("font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;") }, '×')
         ),
@@ -686,7 +686,7 @@
 
     gameSettingsModal(v) {
       return h('div', { style: css('background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;') },
-        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;') },
+        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;') },
           h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;") }, 'Game Options'),
           h('div', { onClick: v.closeModal, className: 'imp-btn', style: css("font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;") }, '×')
         ),
@@ -737,7 +737,7 @@
 
     settingsModal(v) {
       return h('div', { style: css('background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;') },
-        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;') },
+        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;') },
           h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;") }, 'Settings'),
           h('div', { onClick: v.closeModal, style: css("font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;") }, '×')
         ),
@@ -760,12 +760,12 @@
 
     renderLobby(v) {
       return h('div', { style: css('position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-fade-in .25s ease both;') },
-        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; padding:28px 20px 14px;') },
+        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; padding:24px 20px 18px;') },
           h('div', { onClick: v.openHelp, className: 'imp-btn', style: css("width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:'Cinzel',serif; font-weight:700; font-size:17px; color:#caa64f;") }, '?'),
           h('div', { style: css("font-family:'Cinzel Decorative',serif; font-weight:700; font-size:22px; color:#ecdfc0; letter-spacing:.04em;") }, 'MASQ'),
           h('div', { onClick: v.openSettings, className: 'imp-btn', style: css('width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.07); border:1px solid rgba(200,162,76,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:#caa64f;') }, '⚙')
         ),
-        h('div', { style: css('flex:1; overflow-y:auto; padding:0 18px 14px;') },
+        h('div', { style: css('flex:1; overflow-y:auto; padding:0 20px 14px;') },
           h('div', { style: css("font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:#9b8a63; margin-bottom:10px;") }, 'Game Mode'),
           h('div', { style: css('display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:22px;') },
             h('div', { onClick: v.setRoleMode, className: 'imp-btn', style: css(`padding:13px 14px; border-radius:12px; background:${v.roleTileBg}; border:${v.roleTileBorder}; cursor:pointer;`) },
@@ -788,7 +788,7 @@
             this.settingsRow({ onClick: v.openGameSettings, iconBg: 'rgba(200,162,76,.15)', icon: ICON_OPTIONS, label: 'Options', value: v.gameSettingsSummary })
           )
         ),
-        h('div', { style: css('padding:10px 18px 28px; background:linear-gradient(0deg,#0e0810 70%,transparent);') },
+        h('div', { style: css('padding:12px 20px 28px; background:linear-gradient(0deg,#0e0810 70%,transparent);') },
           h('div', { onClick: v.goReveal, className: 'imp-btn', style: css("padding:17px; text-align:center; background:linear-gradient(180deg,#b3202f,#7a1620); color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:.08em; border-radius:12px; box-shadow:0 8px 28px rgba(178,32,47,.4); cursor:pointer;") }, 'RAISE THE CURTAIN')
         ),
         v.hasModal && h('div', { style: css('position:absolute; inset:0; background:rgba(8,4,12,.7); display:flex; flex-direction:column; justify-content:flex-end; animation:imp-backdrop .2s ease both;') },
@@ -842,7 +842,7 @@
     renderReveal(v) {
       return h('div', { style: css('position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-slide-in .3s ease both;') },
         h('div', { style: css('height:24px;') }),
-        h('div', { style: css('position:relative; text-align:center; padding:0 26px 18px;') },
+        h('div', { style: css('position:relative; text-align:center; padding:0 20px 18px;') },
           h('div', { onClick: v.backToLobby, className: 'imp-btn', style: css("position:absolute; left:0; top:0; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; opacity:.8;") }, '‹'),
           h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:22px; color:#f0e6c9;") }, 'Tap your name in secret'),
           h('div', { style: css("font-family:'EB Garamond',serif; font-size:14px; color:#8a9ab8; margin-top:4px;") }, 'Each player privately sees their role, then passes the phone.'),
@@ -923,12 +923,12 @@
       ];
       return h('div', { style: css('position:absolute; inset:0; display:flex; flex-direction:column; background:#0e0810; animation:imp-slide-in .3s ease both;') },
         h('div', { style: css('height:24px;') }),
-        h('div', { style: css('position:relative; text-align:center; padding:0 26px 18px;') },
+        h('div', { style: css('position:relative; text-align:center; padding:0 20px 18px;') },
           h('div', { onClick: v.backToReveal, className: 'imp-btn', style: css("position:absolute; left:0; top:0; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; opacity:.8;") }, '‹'),
           h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:22px; color:#f0e6c9;") }, 'The Trial'),
           h('div', { style: css("font-family:'EB Garamond',serif; font-size:14px; color:#8a9ab8; margin-top:4px;") }, 'Debate, accuse, unmask the jester.')
         ),
-        h('div', { style: css('flex:1; overflow-y:auto; padding:16px 20px 0; display:flex; flex-direction:column;') },
+        h('div', { style: css('flex:1; overflow-y:auto; padding:0 20px; display:flex; flex-direction:column;') },
           h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#ecdfc0; margin-bottom:14px;") }, 'How It Works'),
           h('div', { style: css('display:flex; flex-direction:column; gap:10px; margin-bottom:22px;') },
             steps.map((s, i) => h('div', { key: i, style: css(`display:flex; align-items:center; gap:14px; padding:16px; border-radius:14px; background:${s.panelBg || 'rgba(255,255,255,.05)'}; border:1px solid ${s.border};`) },
@@ -948,7 +948,7 @@
           )
         ),
         h('div', { style: css('padding:12px 20px 28px;') },
-          h('div', { onClick: v.goResults, className: 'imp-btn', style: css("padding:18px; text-align:center; background:linear-gradient(180deg,#b3202f,#7a1620); color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:.08em; border-radius:14px; box-shadow:0 8px 28px rgba(178,32,47,.4); cursor:pointer;") }, 'REVEAL THE JESTER')
+          h('div', { onClick: v.goResults, className: 'imp-btn', style: css("padding:17px; text-align:center; background:linear-gradient(180deg,#b3202f,#7a1620); color:#f6ecd2; font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:.08em; border-radius:14px; box-shadow:0 8px 28px rgba(178,32,47,.4); cursor:pointer;") }, 'REVEAL THE JESTER')
         ),
         v.showTimeUpPopup && h('div', { style: css('position:absolute; inset:0; background:rgba(8,4,10,.85); display:flex; align-items:center; justify-content:center; padding:28px; animation:imp-fade-in .2s ease both;') },
           h('div', { style: css('background:#16101a; border-radius:18px; padding:30px 26px; text-align:center; border:1px solid rgba(200,162,76,.3); max-width:300px; animation:imp-rise .3s ease both;') },
@@ -962,7 +962,7 @@
 
     renderResults(v) {
       return h('div', { style: css('position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; background:radial-gradient(80% 45% at 50% 26%, rgba(230,203,126,.28), transparent 60%), #14070c; animation:imp-scale-in .35s ease both;') },
-        h('div', { style: css('height:28px;') }),
+        h('div', { style: css('height:24px;') }),
         h('div', { style: css('position:relative; width:100%; display:flex; justify-content:center; align-items:center; margin-bottom:2px;') },
           h('div', { onClick: v.backToLobby, style: css("position:absolute; left:20px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:22px; color:#caa64f; cursor:pointer; opacity:.8;") }, '‹'),
           h('div', { style: css("font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.35em; text-transform:uppercase; color:#caa64f;") }, 'The Final Curtain')
@@ -1000,8 +1000,8 @@
             )
           )
         ),
-        h('div', { style: css('width:100%; padding:14px 26px 28px;') },
-          h('div', { onClick: v.playAgain, className: 'imp-btn', style: css("padding:16px; text-align:center; background:linear-gradient(180deg,#ecdfc0,#d3bf93); color:#3c0a10; font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.05em; border-radius:10px; cursor:pointer;") }, 'ENCORE · PLAY AGAIN')
+        h('div', { style: css('width:100%; padding:12px 20px 28px;') },
+          h('div', { onClick: v.playAgain, className: 'imp-btn', style: css("padding:17px; text-align:center; background:linear-gradient(180deg,#ecdfc0,#d3bf93); color:#3c0a10; font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.05em; border-radius:10px; cursor:pointer;") }, 'ENCORE · PLAY AGAIN')
         )
       );
     }
