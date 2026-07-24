@@ -327,6 +327,7 @@
         isModalHelp: st.modal === 'help',
         isModalSettings: st.modal === 'settings',
         isModalGameSettings: st.modal === 'gameSettings',
+        isModalWordList: st.modal === 'wordList',
         closeModal: () => this.setState({ modal: null }),
         openPlayers: () => this.setState({ screen: 'players' }),
         openCategories: () => this.setState({ modal: 'categories' }),
@@ -335,6 +336,17 @@
         openHelp: () => this.setState({ modal: 'help' }),
         openSettings: () => this.setState({ modal: 'settings' }),
         openGameSettings: () => this.setState({ modal: 'gameSettings' }),
+        openWordList: () => this.setState({ modal: 'wordList' }),
+        wordListGroups: [
+          { cat: 'Locations', words: locationNames },
+          { cat: 'Biomes', words: biomeNames },
+          { cat: 'Historical Eras', words: historicalEraNames },
+          { cat: 'Movie Genres', words: movieGenreNames },
+          { cat: 'Food', words: wordOnlyCatalog.Food },
+          { cat: 'Animals', words: wordOnlyCatalog.Animals },
+          { cat: 'Objects', words: wordOnlyCatalog.Objects },
+          { cat: 'Movies', words: wordOnlyCatalog.Movies },
+        ],
         gameSettingsSummary: [st.showCategory ? 'Show Category' : null, st.showWord ? 'Show Word' : 'Word Hidden', st.jestersKnow ? 'Jesters Know Each Other' : null, st.jesterGetsRole ? (st.gameMode === 'words' ? 'Jester Gets Word' : 'Jester Gets Role') : null].filter(Boolean).join(' · ') || 'Default',
         playerItems: st.playerList.map((name, i) => {
           const editing = st.editingIdx === i;
@@ -735,6 +747,23 @@
       );
     }
 
+    wordListModal(v) {
+      return h('div', { style: css('background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); max-height:80vh; overflow-y:auto; animation:imp-slide-up .3s ease both;') },
+        h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;') },
+          h('div', { style: css("font-family:'Cinzel',serif; font-weight:700; font-size:18px; color:#f0e6c9;") }, 'All Words'),
+          h('div', { onClick: v.closeModal, style: css("font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;") }, '×')
+        ),
+        h('div', { style: css('display:flex; flex-direction:column; gap:18px;') },
+          v.wordListGroups.map((g, i) => h('div', { key: i },
+            h('div', { style: css("font-family:'Archivo',sans-serif; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:#9b8a63; margin-bottom:8px;") }, `${g.cat} (${g.words.length})`),
+            h('div', { style: css('display:flex; flex-wrap:wrap; gap:6px;') },
+              g.words.map((w, j) => h('div', { key: j, style: css("font-family:'EB Garamond',serif; font-size:13px; color:#ddd0b0; background:rgba(255,255,255,.05); border:1px solid rgba(200,162,76,.12); border-radius:8px; padding:5px 10px;") }, w))
+            )
+          ))
+        )
+      );
+    }
+
     settingsModal(v) {
       return h('div', { style: css('background:#16101a; border-radius:22px 22px 0 0; padding:20px 20px 36px; border-top:1px solid rgba(200,162,76,.25); animation:imp-slide-up .3s ease both;') },
         h('div', { style: css('display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;') },
@@ -742,6 +771,10 @@
           h('div', { onClick: v.closeModal, style: css("font-family:'Archivo',sans-serif; font-size:22px; color:#9b8a63; cursor:pointer;") }, '×')
         ),
         h('div', { style: css('display:flex; flex-direction:column; gap:10px;') },
+          h('div', { onClick: v.openWordList, className: 'imp-btn', style: css('display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:rgba(255,255,255,.05); border-radius:12px; cursor:pointer;') },
+            h('div', { style: css("font-family:'EB Garamond',serif; font-size:16px; color:#ddd0b0;") }, 'View All Words'),
+            h('div', { style: css('color:#5a6a84; font-size:18px;') }, '›')
+          ),
           h('div', { style: css('display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:rgba(255,255,255,.05); border-radius:12px;') },
             h('div', { style: css("font-family:'EB Garamond',serif; font-size:16px; color:#ddd0b0;") }, 'Sound Effects'),
             h('div', { style: css("font-family:'Archivo',sans-serif; font-size:13px; color:#5a6a84;") }, 'Coming Soon')
@@ -798,7 +831,8 @@
           v.isModalTime && this.timeModal(v),
           v.isModalHelp && this.helpModal(v),
           v.isModalGameSettings && this.gameSettingsModal(v),
-          v.isModalSettings && this.settingsModal(v)
+          v.isModalSettings && this.settingsModal(v),
+          v.isModalWordList && this.wordListModal(v)
         )
       );
     }
